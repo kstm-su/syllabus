@@ -66,19 +66,14 @@ CREATE TABLE IF NOT EXISTS `htmldata` (
 --
 -- テーブルの構造 `list`
 --
-
 CREATE TABLE IF NOT EXISTS `list` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `year` int(11) NOT NULL,
   `department` varchar(8) NOT NULL,
   `code` varchar(64) NOT NULL,
-  `query` varchar(64) NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `query` (`query`),
-  KEY `department` (`department`),
-  KEY `code` (`code`),
-  KEY `year` (`year`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4 AUTO_INCREMENT=6389 ;
+  UNIQUE KEY `year` (`year`,`department`,`code`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4 AUTO_INCREMENT=6388 ;
 
 -- --------------------------------------------------------
 

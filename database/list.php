@@ -55,15 +55,7 @@ do {
 			foreach($sql_txt as $sql_each_txt){
 				$sql_array = array_merge($sql_array, explode('=', $sql_each_txt));
 			}
-			$db->insert('list', array(NULL, $sql_array[1], $sql_array[3], $sql_array[5], $memo_output));
-			/*
-			$sql_query.="'".addslashes($sql_array[1])."',";
-			$sql_query.="'".addslashes($sql_array[3])."',";
-			$sql_query.="'".addslashes($sql_array[5])."',";
-			$sql_query.="'".addslashes($memo_output)."');";
-			 */
-			//print_r($sql_query);
-			//$DB->query($sql_query).PHP_EOL;
+			$db->insert('list', array(NULL, $sql_array[1], $sql_array[3], $sql_array[5]));
 		}
 		$utf_output = substr($utf_output, 1);
 	}
