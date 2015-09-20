@@ -1,5 +1,6 @@
 <?php
 
+include_once('./util.php');
 include_once('./db.php');
 
 $db = new DBAdmin();
@@ -8,17 +9,17 @@ $table = $db->selectAll('rawhtml');
 $db->begin();
 while ($row = $table->fetch_assoc()) {
 	/* CRLFをLFに統一 */
-	$html = str_replace("\r\n", "\n", $row['raw']);
+	$src = str_replace("\r\n", "\n", $row['raw']);
 
 	/* 文字コードを書き換え */
-	$html = str_replace('charset=Shift_JIS','charset=utf-8', $html);
+	$src = str_replace('charset=Shift_JIS','charset=utf-8', $src);
 
 	/* HTMLをオブジェクトに変換 */
-	$xml = htmlobject($src);
+	$html = htmlobject($src);
 
 	/* 抽出 */
 	$data = array('id' => $row['id']);
-	$tmp = $xml->body->center->table->tbody->tr->td->div;
+	$tmp = $html->body->center->table->tbody->tr->td->div;
 	$data['code'] = $tmp[1]->table->tbody->tr[0]->td[3];
 	$data['public'] = (int)(strpos($tmp[0], '市民開放授業') !== FALSE);
 	$data['ches'] = (int)(strpos($tmp[0], '県内大学') !== FALSE);
@@ -50,7 +51,7 @@ while ($row = $table->fetch_assoc()) {
 	}
 
 	$db->replace('htmldata', $data);
-	echo "\033[9D\033[2K$i";
+	echo "\033[9D\033[2K{$row['id']}";
 }
 echo PHP_EOL;
 $db->commit();
