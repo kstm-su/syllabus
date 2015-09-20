@@ -21,3 +21,8 @@ function post_request($url, $data) {
 	curl_close($curl);
 	return $res;
 }
+
+/* 英数字とスペースを半角,カタカナを全角に変換 */
+function kana($str) {
+	return mb_convert_kana($str, 'asKV');
+}
