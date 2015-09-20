@@ -1,19 +1,20 @@
 <?php
 
-/* データベースに接続 */
+include_once('./util.php');
 include_once('./db.php');
+
 $db = new DBAdmin();
 
 $table = $db->selectAll('htmldata');
 $db->begin();
 while ($row = $table->fetch_assoc()) {
-	$subject = trim(mb_convert_kana($row['subject'], 'asKV'));
+	$subject = trim(kana($row['subject']));
 	if ($subject) {
-		$db->insert('subject', array(NULL, $subject, 0));
+		$db->insert('subject', array('name' => $subject));
 	}
-	$subject = trim(mb_convert_kana($row['subject_english'], 'asKV'));
+	$subject = trim(kana($row['subject_english']));
 	if ($subject) {
-		$db->insert('subject', array(NULL, $subject, 1));
+		$db->insert('subject', array('name' => $subject, 'english' => 1));
 	}
 }
 $db->commit();
