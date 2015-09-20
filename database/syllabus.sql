@@ -41,7 +41,6 @@ CREATE TABLE IF NOT EXISTS `department` (
 --
 
 CREATE TABLE IF NOT EXISTS `htmldata` (
-  `htmldata_id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'このテーブルだけのID',
   `id` int(11) NOT NULL COMMENT '全体のID',
   `code` varchar(255) NOT NULL COMMENT '登録コード',
   `subject` text NOT NULL COMMENT '授業名',
@@ -57,8 +56,7 @@ CREATE TABLE IF NOT EXISTS `htmldata` (
   `note` text COMMENT '備考',
   `public` tinyint(1) NOT NULL COMMENT '市民開放授業',
   `ches` tinyint(1) NOT NULL COMMENT '県内大学履修科目',
-  PRIMARY KEY (`htmldata_id`),
-  KEY `id` (`id`)
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4 ;
 
 -- --------------------------------------------------------
@@ -225,11 +223,10 @@ CREATE TABLE IF NOT EXISTS `teacher` (
 CREATE TABLE IF NOT EXISTS `textdata` (
   `textdata_id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'このテーブル専用のID',
   `id` int(11) NOT NULL COMMENT 'rawtextのid',
-  `key` varchar(255) NOT NULL,
+  `key` varchar(127) NOT NULL,
   `value` text,
   PRIMARY KEY (`textdata_id`),
-  KEY `id` (`id`),
-  KEY `key` (`key`(191))
+  UNIQUE KEY `id` (`id`,`key`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4 COMMENT='rawtextとkeyとvalueのペアに整形したもの' ;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
