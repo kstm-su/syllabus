@@ -52,5 +52,6 @@ while ($row = $table->fetch_assoc()) {
 	}
 	echo "\033[9D\033[2K{$row['id']}";
 }
+echo PHP_EOL;
 $db->commit();
 $db->close();
