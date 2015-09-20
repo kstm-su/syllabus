@@ -32,7 +32,7 @@ CREATE TABLE IF NOT EXISTS `department` (
   `description` text NOT NULL,
   PRIMARY KEY (`department_id`),
   UNIQUE KEY `code` (`code`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4 AUTO_INCREMENT=24 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4 ;
 
 -- --------------------------------------------------------
 
@@ -59,7 +59,7 @@ CREATE TABLE IF NOT EXISTS `htmldata` (
   `ches` tinyint(1) NOT NULL COMMENT '県内大学履修科目',
   PRIMARY KEY (`htmldata_id`),
   KEY `id` (`id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4 AUTO_INCREMENT=6389 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4 ;
 
 -- --------------------------------------------------------
 
@@ -73,7 +73,7 @@ CREATE TABLE IF NOT EXISTS `list` (
   `code` varchar(64) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `year` (`year`,`department`,`code`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4 AUTO_INCREMENT=6388 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4 ;
 
 -- --------------------------------------------------------
 
@@ -116,7 +116,7 @@ CREATE TABLE IF NOT EXISTS `schedule` (
   `irregular` tinyint(1) NOT NULL DEFAULT '0' COMMENT '不定',
   `description` text NOT NULL,
   PRIMARY KEY (`schedule_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4 AUTO_INCREMENT=7255 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4 ;
 
 -- --------------------------------------------------------
 
@@ -136,7 +136,7 @@ CREATE TABLE IF NOT EXISTS `season` (
   KEY `spring` (`spring`),
   KEY `autumn` (`autumn`),
   KEY `intensive` (`intensive`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4 AUTO_INCREMENT=19 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4 ;
 
 -- --------------------------------------------------------
 
@@ -149,7 +149,7 @@ CREATE TABLE IF NOT EXISTS `style` (
   `description` varchar(64) NOT NULL,
   PRIMARY KEY (`style_id`),
   UNIQUE KEY `description` (`description`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4 AUTO_INCREMENT=4952 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4 ;
 
 -- --------------------------------------------------------
 
@@ -163,7 +163,7 @@ CREATE TABLE IF NOT EXISTS `subject` (
   `english` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`subject_id`),
   UNIQUE KEY `name` (`name`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4 AUTO_INCREMENT=35626 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4 ;
 
 -- --------------------------------------------------------
 
@@ -214,7 +214,7 @@ CREATE TABLE IF NOT EXISTS `teacher` (
   `name` varchar(127) NOT NULL,
   PRIMARY KEY (`teacher_id`),
   UNIQUE KEY `name` (`name`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4 AUTO_INCREMENT=9116 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4 ;
 
 -- --------------------------------------------------------
 
@@ -230,7 +230,7 @@ CREATE TABLE IF NOT EXISTS `textdata` (
   PRIMARY KEY (`textdata_id`),
   KEY `id` (`id`),
   KEY `key` (`key`(191))
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4 COMMENT='rawtextとkeyとvalueのペアに整形したもの' AUTO_INCREMENT=170458 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4 COMMENT='rawtextとkeyとvalueのペアに整形したもの' ;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
