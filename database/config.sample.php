@@ -8,3 +8,5 @@ const DB_NAME = 'syllabus_db';
 
 /* URL */
 const SEARCH_URL = 'http://campus-2.shinshu-u.ac.jp/syllabus/syllabus.dll/Search';
+const TEXT_URL = 'http://campus-2.shinshu-u.ac.jp/syllabus/syllabus.dll/Text';
+const HTML_URL = 'http://campus-2.shinshu-u.ac.jp/syllabus/syllabus.dll/Display';
