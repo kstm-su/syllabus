@@ -124,7 +124,7 @@ class DBGuest extends mysqli {
 	public function __construct() {
 		parent::__construct('localhost', GUEST_USER, GUEST_PASSWD);
 		$this->set_charset('utf8');
-		$this->select_db('syllabus');
+		$this->select_db(DB_NAME);
 	}
 
 	public function escape($str) {
@@ -143,7 +143,7 @@ class DBAdmin extends DBGuest {
 	public function __construct() {
 		mysqli::__construct('localhost', ADMIN_USER, ADMIN_PASSWD);
 		$this->set_charset('utf8');
-		$this->select_db('syllabus');
+		$this->select_db(DB_NAME);
 	}
 
 	public function begin($flags = MYSQLI_TRANS_START_READ_WRITE) {
@@ -152,14 +152,48 @@ class DBAdmin extends DBGuest {
 
 	public function insert($table, $data) {
 		$table = $this->escape($table);
-		$data = implode(', ', array_map(
-			function($s) {
-				if (is_null($s)) {
-					return 'NULL';
-				}
-				return '\'' . $this->escape((string)$s) . '\'';
-			}, $data));
-		$sql = "INSERT INTO `$table` VALUES ($data)";
+		$isHash = array_values($data) !== $data;
+		$col = array();
+		$val = array();
+		foreach ($data as $c => $v) {
+			$col[] = "`" . $this->escape((string)$c) . "`";
+			if (is_null($v)) {
+				$val[] = 'NULL';
+				continue;
+			}
+			$val[] = "'" . $this->escape((string)$v) . "'";
+		}
+		$cols = implode(', ', $col);
+		$vals = implode(', ', $val);
+		if ($isHash) {
+			$sql = "INSERT INTO `$table` ($cols) VALUES ($vals)";
+		} else {
+			$sql = "INSERT INTO `$table` VALUES ($vals)";
+		}
+		$res = $this->query($sql);
+	    return $res ? $this->insert_id : FALSE;
+	}
+
+	public function replace($table, $data) {
+		$table = $this->escape($table);
+		$isHash = array_values($data) !== $data;
+		$col = array();
+		$val = array();
+		foreach ($data as $c => $v) {
+			$col[] = "`" . $this->escape((string)$c) . "`";
+			if (is_null($v)) {
+				$val[] = 'NULL';
+				continue;
+			}
+			$val[] = "'" . $this->escape((string)$v) . "'";
+		}
+		$cols = implode(', ', $col);
+		$vals = implode(', ', $val);
+		if ($isHash) {
+			$sql = "REPLACE INTO `$table` ($cols) VALUES ($vals)";
+		} else {
+			$sql = "REPLACE INTO `$table` VALUES ($vals)";
+		}
 		$res = $this->query($sql);
 	    return $res ? $this->insert_id : FALSE;
 	}
