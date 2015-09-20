@@ -5,6 +5,7 @@ libxml_use_internal_errors(true);
 
 /* HTMLのソースをSimpleXMLに変換 */
 function htmlobject ($html) {
+	$html = str_replace('charset=Shift_JIS', 'charset=CP932', $html);
 	$doc = new DOMDocument();
 	$doc->loadHTML($html);
 	return simplexml_import_dom($doc);
