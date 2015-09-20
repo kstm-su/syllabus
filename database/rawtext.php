@@ -13,3 +13,4 @@ while ($row = $q->fetch_assoc()) {
 }
 
 $db->close();
+echo PHP_EOL;
