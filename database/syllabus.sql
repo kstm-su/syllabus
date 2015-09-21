@@ -29,7 +29,7 @@ SET time_zone = "+00:00";
 CREATE TABLE IF NOT EXISTS `department` (
   `department_id` int(11) NOT NULL AUTO_INCREMENT,
   `code` varchar(16) NOT NULL,
-  `description` text NOT NULL,
+  `name` text NOT NULL,
   PRIMARY KEY (`department_id`),
   UNIQUE KEY `code` (`code`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4 ;
