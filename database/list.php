@@ -43,7 +43,7 @@ for ($i = 0, $j = -1;; $j = -1) {
 			continue;
 		}
 		$q = preg_split('/&|=/', $td[3]->a['href']);
-		$db->replace('list', array(
+		$db->insert('list', array(
 			'year' => $q[1],
 			'department' => $q[3],
 			'code' => $q[5],
