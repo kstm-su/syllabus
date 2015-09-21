@@ -129,11 +129,7 @@ CREATE TABLE IF NOT EXISTS `season` (
   `intensive` tinyint(1) NOT NULL COMMENT '集中',
   `description` varchar(127) NOT NULL,
   PRIMARY KEY (`season_id`),
-  UNIQUE KEY `description` (`description`),
-  UNIQUE KEY `season_id` (`season_id`),
-  KEY `spring` (`spring`),
-  KEY `autumn` (`autumn`),
-  KEY `intensive` (`intensive`)
+  UNIQUE KEY `description` (`description`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4 ;
 
 -- --------------------------------------------------------
