@@ -173,7 +173,7 @@ CREATE TABLE IF NOT EXISTS `sub_teacher` (
   `id` int(11) NOT NULL,
   `teacher_id` int(11) NOT NULL,
   PRIMARY KEY (`id`),
-  KEY `teacher_id` (`teacher_id`)
+  UNIQUE KEY `id` (`id`, `teacher_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
