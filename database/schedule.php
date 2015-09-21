@@ -6,8 +6,7 @@ include_once('./db.php');
 $db = new DBAdmin();
 $db->truncate('schedule');
 
-//$table = $db->selectAll('htmldata');
-$table = $db->query('SELECT * FROM `htmldata` GROUP BY `schedule`');
+$table = $db->selectAll('htmldata');
 $db->begin();
 while ($row = $table->fetch_assoc()) {
 	$schedules = trim(kana($row['schedule']));
