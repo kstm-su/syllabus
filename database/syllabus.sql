@@ -106,14 +106,15 @@ CREATE TABLE IF NOT EXISTS `rawtext` (
 CREATE TABLE IF NOT EXISTS `schedule` (
   `schedule_id` int(11) NOT NULL AUTO_INCREMENT,
   `id` int(11) NOT NULL COMMENT '授業ID',
-  `day` int(3) DEFAULT NULL COMMENT '曜日(日:1 - 土:7)',
-  `period` float DEFAULT NULL COMMENT '時限',
+  `day` int(3) NOT NULL COMMENT '曜日(日:1 - 土:7)',
+  `period` float NOT NULL COMMENT '時限',
   `early` tinyint(1) NOT NULL DEFAULT '0' COMMENT '前半',
   `late` tinyint(1) NOT NULL DEFAULT '0' COMMENT '後半',
   `intensive` tinyint(1) NOT NULL DEFAULT '0' COMMENT '集中',
   `irregular` tinyint(1) NOT NULL DEFAULT '0' COMMENT '不定',
   `description` text NOT NULL,
-  PRIMARY KEY (`schedule_id`)
+  PRIMARY KEY (`schedule_id`),
+  UNIQUE KEY (`id`, `day`, `period`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4 ;
 
 -- --------------------------------------------------------
