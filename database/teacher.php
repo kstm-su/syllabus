@@ -1,11 +1,9 @@
 <?php
 
 /* データベースに接続 */
+include_once('./util.php');
 include_once('./db.php');
 $db = new DBAdmin();
-
-$db->truncate('teacher');
-$db->truncate('sub_teacher');
 
 function insertSubTeacher($db, $id, $teacher) {
 	$teacher = $db->escape($teacher);
@@ -13,7 +11,8 @@ function insertSubTeacher($db, $id, $teacher) {
 	if ($q) {
 		$res = $q->fetch_assoc();
 		if ($res) {
-			$db->insert('sub_teacher', array($id, $res['teacher_id']));
+			$db->insert('sub_teacher', array(
+				'id' => $id, 'teacher_id' => $res['teacher_id']));
 		}
 	}
 }
@@ -25,9 +24,9 @@ while ($row = $table->fetch_assoc()) {
 	if ($teacher) {
 		$teachers = preg_split('/　　|，| (?![A-Z])/', $teacher);
 		foreach ($teachers as $i => $teacher) {
-			$teacher = trim(mb_convert_kana($teacher, 'asKV'));
+			$teacher = trim(kana($teacher));
 			if ($teacher && $teacher !== '他') {
-				$db->insert('teacher', array(NULL, $teacher));
+				$db->insert('teacher', array('name' => $teacher));
 				if ($i) {
 					insertSubTeacher($db, $row['id'], $teacher);
 				}
@@ -35,11 +34,11 @@ while ($row = $table->fetch_assoc()) {
 		}
 	}
 	$sub = $row['sub_teacher'];
-	$sub = mb_convert_kana($sub, 'asKV');
+	$sub = kana($sub);
 	foreach(explode('・', $sub) as $teacher) {
 		$teacher = trim($teacher);
 		if ($teacher) {
-			$db->insert('teacher', array(NULL, $teacher));
+			$db->insert('teacher', array('name' => $teacher));
 			insertSubTeacher($db, $row['id'], $teacher);
 		}
 	}
