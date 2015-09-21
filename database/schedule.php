@@ -10,6 +10,10 @@ $table = $db->selectAll('htmldata');
 $db->begin();
 while ($row = $table->fetch_assoc()) {
 	$schedules = trim(kana($row['schedule']));
+	if ($schedules === '') {
+		$db->insert('schedule',
+			array('id' => $row['id'], 'day' => 0, 'period' => 0));
+	}
 	foreach(explode(' ', $schedules) as $schedule) {
 		if ($schedule) {
 			preg_match('/^(?:(集)|(日|月|火|水|木|金|土))?(?:(?:(\d+)|(不定))(後)?(?:～(\d+)(前)?)?)?$/', $schedule, $m);
