@@ -5,7 +5,7 @@ include_once('./util.php');
 $db = new DBAdmin();
 
 echo 'Updating `semester` table ... ';
-$q = $db->selectAll('semester');
+$q = $db->selectAll('htmldata');
 $db->begin();
 while ($row = $q->fetch_assoc()) {
 	$desc = trim(kana($row['semester']));
