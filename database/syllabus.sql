@@ -1,231 +1,125 @@
--- phpMyAdmin SQL Dump
--- version 4.0.10.10
--- http://www.phpmyadmin.net
---
--- ホスト: localhost
--- 生成日時: 2015 年 9 月 18 日 09:48
--- サーバのバージョン: 5.6.26
--- PHP のバージョン: 5.6.13
-
-SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
-SET time_zone = "+00:00";
-
-
-/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
-/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
-/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
-/*!40101 SET NAMES utf8 */;
-
---
--- データベース: `syllabus`
---
-
--- --------------------------------------------------------
-
---
--- テーブルの構造 `department`
---
+CREATE TABLE IF NOT EXISTS `list` (
+	`id` int(11) NOT NULL AUTO_INCREMENT COMMENT '授業ID',
+	`year` int(11) NOT NULL COMMENT '開講年度',
+	`department_code` varchar(8) NOT NULL COMMENT '開講部局コード',
+	`internal_code` varchar(64) NOT NULL COMMENT 'URL用の内部授業コード',
+	`place` varchar(64) COMMENT '開講場所',
+	PRIMARY KEY (`id`),
+	UNIQUE KEY `uniq` (`year`, `department_code`, `internal_code`)
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COMMENT = '/Search から取れるクローリング用の情報等';
 
 CREATE TABLE IF NOT EXISTS `department` (
-  `department_id` int(11) NOT NULL AUTO_INCREMENT,
-  `code` varchar(16) NOT NULL,
-  `name` text NOT NULL,
-  PRIMARY KEY (`department_id`),
-  UNIQUE KEY `code` (`code`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4 ;
+	`department_id` int(11) NOT NULL AUTO_INCREMENT COMMENT '部局ID',
+	`department_code` varchar(16) NOT NULL COMMENT '部局コード',
+	`name` varchar(256) NOT NULL COMMENT '部局名',
+	PRIMARY KEY (`department_id`),
+	UNIQUE KEY `code` (`department_code`)
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COMMENT = '部局リスト';
 
--- --------------------------------------------------------
-
---
--- テーブルの構造 `htmldata`
---
+CREATE TABLE IF NOT EXISTS `raw` (
+	`id` int(11) NOT NULL COMMENT '授業ID',
+	`html` longtext NOT NULL COMMENT '/Display から取れるデータ',
+	`text` longtext NOT NULL COMMENT '/Text から取れるデータ',
+	PRIMARY KEY (`id`)
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COMMENT = 'クローリングしたシラバス情報を入れるテーブル';
 
 CREATE TABLE IF NOT EXISTS `htmldata` (
-  `id` int(11) NOT NULL COMMENT '全体のID',
-  `code` varchar(255) NOT NULL COMMENT '登録コード',
-  `subject` text NOT NULL COMMENT '授業名',
-  `subject_english` text COMMENT '授業名(英語)',
-  `teacher` text NOT NULL COMMENT '担当教員',
-  `sub_teacher` text COMMENT '副担当',
-  `season` varchar(255) NOT NULL COMMENT '講義期間',
-  `schedule` varchar(255) NOT NULL COMMENT '曜日・時限',
-  `location` text NOT NULL COMMENT '講義室',
-  `unit` float NOT NULL COMMENT '単位数',
-  `target` text NOT NULL COMMENT '対象学生',
-  `style` varchar(255) DEFAULT NULL COMMENT '授業形態',
-  `note` text COMMENT '備考',
-  `public` tinyint(1) NOT NULL COMMENT '市民開放授業',
-  `ches` tinyint(1) NOT NULL COMMENT '県内大学履修科目',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4 ;
-
--- --------------------------------------------------------
-
---
--- テーブルの構造 `list`
---
-CREATE TABLE IF NOT EXISTS `list` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `year` int(11) NOT NULL,
-  `department` varchar(8) NOT NULL,
-  `code` varchar(64) NOT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `year` (`year`,`department`,`code`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4 ;
-
--- --------------------------------------------------------
-
---
--- テーブルの構造 `rawhtml`
---
-
-CREATE TABLE IF NOT EXISTS `rawhtml` (
-  `id` int(11) NOT NULL,
-  `raw` longtext NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
--- --------------------------------------------------------
-
---
--- テーブルの構造 `rawtext`
---
-
-CREATE TABLE IF NOT EXISTS `rawtext` (
-  `id` int(11) NOT NULL,
-  `raw` longtext NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
--- --------------------------------------------------------
-
---
--- テーブルの構造 `schedule`
---
-
-CREATE TABLE IF NOT EXISTS `schedule` (
-  `schedule_id` int(11) NOT NULL AUTO_INCREMENT,
-  `id` int(11) NOT NULL COMMENT '授業ID',
-  `day` int(3) NOT NULL COMMENT '曜日(日:1 - 土:7)',
-  `period` float NOT NULL COMMENT '時限',
-  `early` tinyint(1) NOT NULL DEFAULT '0' COMMENT '前半',
-  `late` tinyint(1) NOT NULL DEFAULT '0' COMMENT '後半',
-  `intensive` tinyint(1) NOT NULL DEFAULT '0' COMMENT '集中',
-  `irregular` tinyint(1) NOT NULL DEFAULT '0' COMMENT '不定',
-  `description` text NOT NULL,
-  PRIMARY KEY (`schedule_id`),
-  UNIQUE KEY (`id`, `day`, `period`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4 ;
-
--- --------------------------------------------------------
-
---
--- テーブルの構造 `season`
---
-
-CREATE TABLE IF NOT EXISTS `season` (
-  `season_id` int(11) NOT NULL AUTO_INCREMENT,
-  `spring` tinyint(1) NOT NULL COMMENT '前期',
-  `autumn` tinyint(1) NOT NULL COMMENT '後期',
-  `intensive` tinyint(1) NOT NULL COMMENT '集中',
-  `description` varchar(127) NOT NULL,
-  PRIMARY KEY (`season_id`),
-  UNIQUE KEY `description` (`description`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4 ;
-
--- --------------------------------------------------------
-
---
--- テーブルの構造 `style`
---
-
-CREATE TABLE IF NOT EXISTS `style` (
-  `style_id` int(11) NOT NULL AUTO_INCREMENT,
-  `description` varchar(64) NOT NULL,
-  PRIMARY KEY (`style_id`),
-  UNIQUE KEY `description` (`description`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4 ;
-
--- --------------------------------------------------------
-
---
--- テーブルの構造 `subject`
---
-
-CREATE TABLE IF NOT EXISTS `subject` (
-  `subject_id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(127) NOT NULL,
-  `english` tinyint(1) NOT NULL DEFAULT '0',
-  PRIMARY KEY (`subject_id`),
-  UNIQUE KEY `name` (`name`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4 ;
-
--- --------------------------------------------------------
-
---
--- テーブルの構造 `sub_teacher`
---
-
-CREATE TABLE IF NOT EXISTS `sub_teacher` (
-  `id` int(11) NOT NULL,
-  `teacher_id` int(11) NOT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `id` (`id`, `teacher_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
--- --------------------------------------------------------
-
---
--- テーブルの構造 `summary`
---
-
-CREATE TABLE IF NOT EXISTS `summary` (
-  `id` int(11) NOT NULL COMMENT 'マスタID',
-  `code` varchar(64) NOT NULL COMMENT '履修コード',
-  `subject_id` int(11) NOT NULL COMMENT '授業名ID',
-  `subject_english_id` int(11) DEFAULT NULL COMMENT '授業名ID(英語)',
-  `teacher_id` int(11) DEFAULT NULL COMMENT '主担当教員ID',
-  `season_id` int(11) DEFAULT NULL COMMENT '期間ID',
-  `unit` double NOT NULL COMMENT '単位数',
-  `style_id` int(11) DEFAULT NULL COMMENT '授業形態ID',
-  PRIMARY KEY (`id`),
-  KEY `code` (`code`),
-  KEY `subject_id` (`subject_id`),
-  KEY `subject_english_id` (`subject_english_id`),
-  KEY `teacher_id` (`teacher_id`),
-  KEY `season_id` (`season_id`),
-  KEY `unit` (`unit`),
-  KEY `style` (`style_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
--- --------------------------------------------------------
-
---
--- テーブルの構造 `teacher`
---
-
-CREATE TABLE IF NOT EXISTS `teacher` (
-  `teacher_id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(127) NOT NULL,
-  PRIMARY KEY (`teacher_id`),
-  UNIQUE KEY `name` (`name`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4 ;
-
--- --------------------------------------------------------
-
---
--- テーブルの構造 `textdata`
---
+	`id` int(11) NOT NULL COMMENT '授業ID',
+	`code` varchar(256) NOT NULL COMMENT '授業コード(履修登録用)',
+	`title` text NOT NULL COMMENT '授業名',
+	`title_english` text COMMENT '授業名(英語)',
+	`teacher` text NOT NULL COMMENT '担当教員',
+	`sub_teacher` text COMMENT '副担当教員',
+	`semester` varchar(256) NOT NULL COMMENT '開講期間',
+	`schedule` text NOT NULL COMMENT '曜日時限',
+	`classroom` text NOT NULL COMMENT '講義室',
+	`credit` varchar(16) NOT NULL COMMENT '単位数',
+	`target` text NOT NULL COMMENT '対象学生',
+	`style` varchar(256) COMMENT '授業形態',
+	`note` text COMMENT '備考',
+	`public` tinyint(1) NOT NULL COMMENT '市民開放授業',
+	`ches` tinyint(1) NOT NULL COMMENT '県内大学履修科目',
+	PRIMARY KEY (`id`)
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COMMENT = 'HTMLから抜き出した情報を入れるテーブル';
 
 CREATE TABLE IF NOT EXISTS `textdata` (
-  `textdata_id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'このテーブル専用のID',
-  `id` int(11) NOT NULL COMMENT 'rawtextのid',
-  `key` varchar(127) NOT NULL,
-  `value` text,
-  PRIMARY KEY (`textdata_id`),
-  UNIQUE KEY `id` (`id`,`key`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4 COMMENT='rawtextとkeyとvalueのペアに整形したもの' ;
+	`textdata_id` int(11) NOT NULL AUTO_INCREMENT,
+	`id` int(11) NOT NULL COMMENT '授業ID',
+	`key` varchar(128) NOT NULL COMMENT '項目名',
+	`value` text COMMENT '値',
+	PRIMARY KEY (`textdata_id`)
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COMMENT = 'テキストデータから抜き出した情報を入れるテーブル';
 
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
-/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
-/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+CREATE TABLE IF NOT EXISTS `summary` (
+	`id` int(11) NOT NULL COMMENT '授業ID',
+	`year` int(11) NOT NULL COMMENT '開講年度',
+	`code` varchar(64) COMMENT '授業コード(履修登録用)',
+	`department_id` int(11) NOT NULL COMMENT '開講部局ID',
+	`title` varchar(128) NOT NULL COMMENT '授業名',
+	`title_english` varchar(128) COMMENT '授業名(英語)',
+	`semester_id` int(11) COMMENT '開講時期ID',
+	`credit` float NOT NULL COMMENT '単位数',
+	`target` varchar(256) COMMENT '対象学生',
+	`style` varchar(256) COMMENT '授業形態',
+	`note` text COMMENT '備考',
+	PRIMARY KEY (`id`),
+	UNIQUE KEY `uniq` (`year`, `code`),
+	KEY `title` (`title`),
+	KEY `title_english` (`title_english`)
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COMMENT = '主にhtmldataを元に整理したテーブル';
+
+CREATE TABLE IF NOT EXISTS `staff` (
+	`staff_id` int(11) NOT NULL AUTO_INCREMENT COMMENT '教員ID',
+	`name` varchar(128) NOT NULL COMMENT '教員名',
+	PRIMARY KEY (`staff_id`),
+	UNIQUE KEY `name` (`name`)
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COMMENT = '教員一覧';
+
+CREATE TABLE IF NOT EXISTS `teacher` (
+	`teacher_id` int(11) NOT NULL AUTO_INCREMENT,
+	`id` int(11) NOT NULL COMMENT '授業ID',
+	`staff_id` int(11) NOT NULL COMMENT '教員ID',
+	`main` tinyint(1) NOT NULL COMMENT '主担当教員',
+	PRIMARY KEY (`teacher_id`),
+	UNIQUE KEY (`id`, `staff_id`)
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COMMENT = '授業の担当教員';
+
+CREATE TABLE IF NOT EXISTS `semester` (
+	`semester_id` int(11) NOT NULL AUTO_INCREMENT COMMENT '開講時期ID',
+	`first` tinyint(1) NOT NULL COMMENT '前期',
+	`second` tinyint(1) NOT NULL COMMENT '後期',
+	`intensive` tinyint(1) NOT NULL COMMENT '集中',
+	`description` varchar(128) NOT NULL,
+	PRIMARY KEY (`semester_id`),
+	UNIQUE KEY `description` (`description`)
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COMMENT = '開講時期リスト';
+
+CREATE TABLE IF NOT EXISTS `schedule` (
+	`schedule_id` int(11) NOT NULL AUTO_INCREMENT,
+	`id` int(11) NOT NULL COMMENT '授業ID',
+	`day` int(11) COMMENT '曜日 (0:日 - 6:土)',
+	`period` int(11) COMMENT '時限',
+	`early` tinyint(1) NOT NULL COMMENT '前半',
+	`late` tinyint(1) NOT NULL COMMENT '後半',
+	`intensive` tinyint(1) NOT NULL COMMENT '集中',
+	`irregular` tinyint(1) NOT NULL COMMENT '不定',
+	`description` text,
+	PRIMARY KEY (`schedule_id`),
+	UNIQUE KEY `uniq` (`id`, `day`, `period`)
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COMMENT = '授業の曜日時限';
+
+CREATE TABLE IF NOT EXISTS `room` (
+	`room_id` int(11) NOT NULL AUTO_INCREMENT COMMENT '部屋ID',
+	`department_id` int(11) COMMENT '部局ID',
+	`name` varchar(128) NOT NULL COMMENT '部屋名',
+	PRIMARY KEY (`room_id`),
+	UNIQUE KEY `uniq` (`department_id`, `name`)
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COMMENT = '部屋リスト';
+
+CREATE TABLE IF NOT EXISTS `classroom` (
+	`classroom_id` int(11) NOT NULL AUTO_INCREMENT,
+	`id` int(11) NOT NULL COMMENT '授業ID',
+	`room_id` int(11) NOT NULL COMMENT '部屋ID',
+	PRIMARY KEY (`classroom_id`),
+	UNIQUE KEY `uniq` (`id`, `room_id`)
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COMMENT = '講義室';

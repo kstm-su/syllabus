@@ -1,15 +1,15 @@
 <?php
 
 include_once('./util.php');
-include_once('./db.php');
 
 $db = new DBAdmin();
 
-$table = $db->selectAll('rawtext');
+echo 'Updating `textdata` table ... ';
+$q = $db->query('SELECT `id`, `text` FROM `raw`');
 $db->begin();
-while ($row = $table->fetch_assoc()) {
+while ($row = $q->fetch_assoc()) {
 	/* CRLFをLFに統一 */
-	$text = str_replace("\r\n", "\n", $row['raw']);
+	$text = str_replace("\r\n", "\n", $row['text']);
 
 	/* それぞれの項目に区切る */
 	$paragraphs = preg_split('/\-{50}\r?\n(?=【.*?】\r?\n\-{50}\r?\n)/', $text);
@@ -50,8 +50,8 @@ while ($row = $table->fetch_assoc()) {
 		$db->replace('textdata',
 			array('id' => $row['id'], 'key' => $key, 'value' => $value));
 	}
-	echo "\033[9D\033[2K{$row['id']}";
+	echo "\033[31G\033[K{$row['id']}";
 }
-echo PHP_EOL;
 $db->commit();
 $db->close();
+echo " " . PRINT_OK . PHP_EOL;

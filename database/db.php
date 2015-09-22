@@ -1,7 +1,5 @@
 <?php
 
-require_once(dirname(__FILE__) . '/config.php');
-
 class DBGuest extends mysqli {
 
 	public function __construct() {

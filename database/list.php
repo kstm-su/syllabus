@@ -1,15 +1,20 @@
 <?php
 
 include_once('./util.php');
-include_once('./db.php');
 
 $db = new DBAdmin();
 
-/* 年度の取得と部局リストの更新 */
+/* トップページの取得 */
+echo 'Downloading top page ... ';
 $src = file_get_contents(SEARCH_URL);
+echo PRINT_OK . PHP_EOL;
 $html = htmlobject($src);
 $year = (int)$html->body->form->table->tbody->tr->td->table->tbody->tr[1]->td[1]->input['value'];
 $departments = $html->body->form->table->tbody->tr->td->table->tbody->tr[0]->td[1]->select->option;
+
+
+/* 部局リストの更新 */
+echo 'Updating `department` table ... ';
 $db->begin();
 foreach ($departments as $department) {
 	$code = (string)$department['value'];
@@ -19,8 +24,10 @@ foreach ($departments as $department) {
 	}
 }
 $db->commit();
+echo PRINT_OK . PHP_EOL;
 
 /* 講義データのリストを取得 */
+echo 'Updating `list` table ... ';
 $postdata = array(
 	'MODE' => 0,
 	'STARTNO' => 0,
@@ -33,7 +40,7 @@ for ($i = 0, $j = -1;; $j = -1) {
 	$html = htmlobject($src);
 	$tr = $html->body->form->table[1]->tbody->tr;
 	if (count($tr) <= 1) {
-		echo "\033[9D\033[2K$i\n`list` is updated.\n";
+		echo "\033[27G\033[K$i " . PRINT_OK . PHP_EOL;
 		break;
 	}
 	$db->begin();
@@ -45,8 +52,8 @@ for ($i = 0, $j = -1;; $j = -1) {
 		$q = preg_split('/&|=/', $td[3]->a['href']);
 		$db->insert('list', array(
 			'year' => $q[1],
-			'department' => $q[3],
-			'code' => $q[5],
+			'department_code' => $q[3],
+			'internal_code' => $q[5],
 			'place' => $td[7]));
 	}
 	$db->commit();
@@ -56,7 +63,7 @@ for ($i = 0, $j = -1;; $j = -1) {
 	}
 	$postdata['BtNEXT'] = 1;
 	$i += $j;
-	echo "\033[9D\033[2K$i";
+	echo "\033[27G\033[K$i";
 }
 
 $db->close();

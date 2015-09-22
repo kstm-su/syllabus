@@ -1,5 +1,12 @@
 <?php
 
+include_once(__DIR__ . '/config.php');
+include_once(__DIR__ . '/db.php');
+
+/* デバッグ表示用 */
+const PRINT_OK = "[\033[32mOK\033[0m]";
+const PRINT_ERROR = "[\033[31mERROR\033[0m]";
+
 /* DOMのパース処理時は警告を無視 */
 libxml_use_internal_errors(true);
 
@@ -20,6 +27,11 @@ function post_request($url, $data) {
 	$res = curl_exec($curl);
 	curl_close($curl);
 	return $res;
+}
+
+/* CP932からUTF-8に変換 */
+function sjis2utf($str) {
+	return mb_convert_encoding($str, 'utf8', 'cp932');
 }
 
 /* 英数字とスペースを半角,カタカナを全角に変換 */

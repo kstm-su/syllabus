@@ -1,34 +1,22 @@
 <?php
 
-function kana($str) {
-	return mb_convert_kana($str, 'asKV');
-}
+include_once('./util.php');
 
-/* データベースに接続 */
-include_once('./db.php');
 $db = new DBAdmin();
 
-$db->truncate('summary');
-
-$table = $db->selectAll('htmldata');
+echo 'Updating `summary` table ... ';
+$table = $db->query('SELECT `list`.`id` as `id`, `list`.`year` as `year`, `department`.`department_id` as `department_id`, `htmldata`.`code` as `code`, `htmldata`.`title` as `title`, `htmldata`.`title_english` as `title_english`, `htmldata`.`credit` as `credit`, `htmldata`.`target` as `target`, `htmldata`.`style` as `style`, `htmldata`.`note` as `note` FROM `list` LEFT JOIN `htmldata` ON `list`.`id` = `htmldata`.`id` LEFT JOIN `department` ON `list`.`department_code` = `department`.`department_code` ORDER BY `list`.`id`');
 $db->begin();
 while ($row = $table->fetch_assoc()) {
-	$subject = $db->query("SELECT `subject_id` FROM `subject` WHERE `name` = '{$db->escape(kana($row['subject']))}' and `english` = '0'")->fetch_assoc();
-	$subject_eng = $db->query("SELECT `subject_id` FROM `subject` WHERE `name` = '{$db->escape(kana($row['subject_english']))}' and `english` = '1'")->fetch_assoc();
-	$teacher = $db->query("SELECT `teacher_id` FROM `teacher` WHERE `name` = '{$db->escape(kana($row['teacher']))}'")->fetch_assoc();
-	$season = $db->query("SELECT `season_id` FROM `season` WHERE `description` = '{$db->escape(kana($row['season']))}'")->fetch_assoc();
-	$style = $db->query("SELECT `style_id` FROM `style` WHERE `description` = '{$db->escape(kana($row['style']))}'")->fetch_assoc();
-	$data = array(
-		$row['id'],
-		$row['code'],
-		$subject['subject_id'],
-		$subject_eng['subject_id'],
-		$teacher['teacher_id'],
-		$season['season_id'],
-		$row['unit'],
-		$style['style_id']
-	);
-	$db->insert('summary', $data);
+	$row = array_map(function($s){
+		return trim(kana($s));
+	}, $row);
+	if ($row['code'] === '') {
+		$row['code'] = NULL;
+	}
+	$db->insert('summary', $row);
+	echo "\033[30G\033[K{$row['id']}";
 }
 $db->commit();
 $db->close();
+echo " " . PRINT_OK . PHP_EOL;

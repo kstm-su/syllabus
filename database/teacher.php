@@ -1,35 +1,36 @@
 <?php
 
-/* データベースに接続 */
 include_once('./util.php');
-include_once('./db.php');
+
 $db = new DBAdmin();
 
-function insertSubTeacher($db, $id, $teacher) {
-	$teacher = $db->escape($teacher);
-	$q = $db->query("SELECT `teacher_id` FROM `teacher` WHERE `name` = '$teacher'");
+function insertTeacher($db, $id, $name, $main) {
+	$name = $db->escape($name);
+	$q = $db->query("SELECT `staff_id` FROM `staff` WHERE `name` = '$name'");
 	if ($q) {
 		$res = $q->fetch_assoc();
 		if ($res) {
-			$db->insert('sub_teacher', array(
-				'id' => $id, 'teacher_id' => $res['teacher_id']));
+			$db->insert('teacher', array(
+				'id' => $id,
+				'staff_id' => $res['staff_id'],
+				'main' => $main
+			));
 		}
 	}
 }
 
-$table = $db->selectAll('htmldata');
+echo 'Updating `teacher` table ... ';
+$q = $db->selectAll('htmldata');
 $db->begin();
-while ($row = $table->fetch_assoc()) {
+while ($row = $q->fetch_assoc()) {
 	$teacher = trim($row['teacher']);
 	if ($teacher) {
 		$teachers = preg_split('/　　|，| (?![A-Z])/', $teacher);
 		foreach ($teachers as $i => $teacher) {
 			$teacher = trim(kana($teacher));
 			if ($teacher && $teacher !== '他') {
-				$db->insert('teacher', array('name' => $teacher));
-				if ($i) {
-					insertSubTeacher($db, $row['id'], $teacher);
-				}
+				$db->insert('staff', array('name' => $teacher));
+				insertTeacher($db, $row['id'], $teacher, !$i);
 			}
 		}
 	}
@@ -38,10 +39,12 @@ while ($row = $table->fetch_assoc()) {
 	foreach(explode('・', $sub) as $teacher) {
 		$teacher = trim($teacher);
 		if ($teacher) {
-			$db->insert('teacher', array('name' => $teacher));
-			insertSubTeacher($db, $row['id'], $teacher);
+			$db->insert('staff', array('name' => $teacher));
+			insertTeacher($db, $row['id'], $teacher, FALSE);
 		}
 	}
+	echo "\033[30G\033[K{$row['id']}";
 }
 $db->commit();
 $db->close();
+echo " " . PRINT_OK . PHP_EOL;
