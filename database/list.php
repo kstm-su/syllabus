@@ -15,7 +15,7 @@ foreach ($departments as $department) {
 	$code = (string)$department['value'];
 	if ($code) {
 		$name = kana((string)$department);
-		$db->insert('department', array('code' => $code, 'name' => $name));
+		$db->insert('department', array('department_code' => $code, 'name' => $name));
 	}
 }
 $db->commit();
