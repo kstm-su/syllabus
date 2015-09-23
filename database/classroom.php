@@ -3,6 +3,7 @@
 include_once('./util.php');
 
 $db = new DBAdmin();
+$db->truncate('room');
 $db->truncate('classroom');
 
 echo 'Updating `classroom` table ... ';
@@ -27,9 +28,9 @@ while ($row = $q->fetch_assoc()) {
 			continue;
 		}
 		$db->insert('room', array('department_id' => $did, 'name' => $room));
-		$did = $db->escape($did);
+		$did = is_null($did) ? 'IS NULL' : "= '" . $db->escape($did) . "'";
 		$room = $db->escape($room);
-		$r = $db->query("SELECT `room_id` FROM `room` WHERE `department_id` = '$did' AND `name` = '$room'");
+		$r = $db->query("SELECT `room_id` FROM `room` WHERE `department_id` $did AND `name` = '$room'");
 		$rid = $r->fetch_assoc()['room_id'];
 		$db->insert('classroom', array(
 			'id' => $row['id'],
