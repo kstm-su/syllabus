@@ -10,7 +10,9 @@ class DBGuest extends mysqli {
 
 	/* 文字列をエスケープして返す */
 	public function escape($str) {
-		return $this->real_escape_string($str);
+		$res = $this->real_escape_string($str);
+		$res = str_replace('\\', '\\\\', $res);
+		return str_replace('?', '\\?', $res);
 	}
 
 	/* 指定したテーブルからすべての行をSELECT */
