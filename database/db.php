@@ -22,22 +22,26 @@ class DBGuest extends mysqli {
 	/* SQLを実行 */
 	public function query($sql, ...$values) {
 		$i = 0;
-		$sql = preg_replace_callback('/(?<=\s)\?\??/', function($m) use ($values, &$i) {
-			$value = $values[$i++];
-			if (is_array($value) === FALSE) {
-				$value = array($value);
-			}
-			$quote = $m[0] === '?' ? "'" : '`';
-			$list = array();
-			foreach ($value as $v) {
-				if (is_null($v)) {
-					$list[] = NULL;
-					continue;
+		$sql = preg_replace_callback('/\\\\([\\\\?])|(\?\??)/',
+			function($m) use ($values, &$i) {
+				if ($m[1]) {
+					return $m[1];
 				}
-				$list[] = $quote . $this->escape((string)$v) . $quote;
-			}
-			return implode(', ', $list);
-		}, $sql);
+				$value = $values[$i++];
+				if (is_array($value) === FALSE) {
+					$value = array($value);
+				}
+				$quote = $m[2] === '?' ? "'" : '`';
+				$list = array();
+				foreach ($value as $v) {
+					if (is_null($v)) {
+						$list[] = NULL;
+						continue;
+					}
+					$list[] = $quote . $this->escape((string)$v) . $quote;
+				}
+				return implode(', ', $list);
+			}, $sql);
 		return parent::query($sql);
 	}
 
@@ -92,7 +96,7 @@ class DBAdmin extends DBGuest {
 			$sql = "INSERT INTO `$table` VALUES ($vals)";
 		}
 		$res = $this->query($sql);
-	    return $res ? $this->insert_id : FALSE;
+		return $res ? $this->insert_id : FALSE;
 	}
 
 	/* insertメソッドに加えて、同じ行が存在する場合は置き換え */
@@ -117,7 +121,7 @@ class DBAdmin extends DBGuest {
 			$sql = "REPLACE INTO `$table` VALUES ($vals)";
 		}
 		$res = $this->query($sql);
-	    return $res ? $this->insert_id : FALSE;
+		return $res ? $this->insert_id : FALSE;
 	}
 
 	/* テーブルを空にする */
