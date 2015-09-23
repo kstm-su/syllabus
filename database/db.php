@@ -44,6 +44,9 @@ class DBGuest extends mysqli {
 	/* SQLを実行して1行だけ返す */
 	public function single($sql, ...$values) {
 		$q = $this->query($sql, ...$values);
+		if ($q === FALSE) {
+			return FALSE;
+		}
 		$res = $q->fetch_assoc();
 		if (count($res) === 1){
 			/* 行が一つだけの場合は文字列に変換して返す */
