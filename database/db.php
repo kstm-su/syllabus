@@ -19,6 +19,39 @@ class DBGuest extends mysqli {
 		return $this->query("SELECT * FROM `$table`");
 	}
 
+	/* SQLを実行 */
+	public function query($sql, ...$values) {
+		$i = 0;
+		$sql = preg_replace_callback('/\?\??/', function($m) use ($values, &$i) {
+			$value = $values[$i++];
+			if (is_array($value) === FALSE) {
+				$value = array($value);
+			}
+			$quote = $m[0] === '?' ? "'" : '`';
+			$list = array();
+			foreach ($value as $v) {
+				if (is_null($v)) {
+					$list[] = NULL;
+					continue;
+				}
+				$list[] = $quote . $this->escape((string)$v) . $quote;
+			}
+			return implode(', ', $list);
+		}, $sql);
+		return parent::query($sql);
+	}
+
+	/* SQLを実行して1行だけ返す */
+	public function single($sql, ...$values) {
+		$q = $this->query($sql, ...$values);
+		$res = $q->fetch_assoc();
+		if (count($res) === 1){
+			/* 行が一つだけの場合は文字列に変換して返す */
+			return implode($res);
+		}
+		return $res;
+	}
+
 }
 
 class DBAdmin extends DBGuest {
