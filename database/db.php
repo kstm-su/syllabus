@@ -22,7 +22,7 @@ class DBGuest extends mysqli {
 	/* SQLを実行 */
 	public function query($sql, ...$values) {
 		$i = 0;
-		$sql = preg_replace_callback('/\?\??/', function($m) use ($values, &$i) {
+		$sql = preg_replace_callback('/(?<=\s)\?\??/', function($m) use ($values, &$i) {
 			$value = $values[$i++];
 			if (is_array($value) === FALSE) {
 				$value = array($value);
