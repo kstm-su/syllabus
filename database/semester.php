@@ -22,7 +22,7 @@ while ($row = $q->fetch_assoc()) {
 		));
 	}
 	$db->query('UPDATE `summary` SET `semester_id` =
-		(SELECT id FROM `semester` WHERE `description` = ?)
+		(SELECT `semester_id` FROM `semester` WHERE `description` = ?)
 		WHERE `id` = ?', $desc, $row['id']);
 }
 $db->commit();
