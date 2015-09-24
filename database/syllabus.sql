@@ -62,6 +62,8 @@ CREATE TABLE IF NOT EXISTS `summary` (
 	`target` varchar(256) COMMENT '対象学生',
 	`style` varchar(256) COMMENT '授業形態',
 	`note` text COMMENT '備考',
+	`public` tinyint(1) NOT NULL COMMENT '市民開放授業',
+	`ches` tinyint(1) NOT NULL COMMENT '県内大学履修科目',
 	PRIMARY KEY (`id`),
 	UNIQUE KEY `uniq` (`year`, `code`),
 	KEY `title` (`title`),

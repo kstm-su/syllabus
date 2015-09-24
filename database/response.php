@@ -23,12 +23,16 @@ while ($row = $q->fetch_assoc()) {
 			WHERE `semester_id` = ?', $row['semester_id']);
 	}
 	$schedule = array_map(
-		function($a){
-			return array_map(function($s){ return (int)$s; }, $a);
-		},
+		function($a){ return array(
+			'day' => is_null($a) ? NULL : (int)$a['day'],
+			'period' => is_null($a) ? NULL : (int)$a['period'],
+			'early' => (bool)$a['early'],
+			'late' => (bool)$a['late'],
+			'intensive' => (bool)$a['intensive'],
+			'irregular' => (bool)$a['irregular']
+		); },
 		$db->query(
-			'SELECT `day`, `period`, `early`, `late`, `intensive`, `irregular`
-			FROM `schedule` WHERE `id` = ?', $row['id']
+			'SELECT * FROM `schedule` WHERE `id` = ?', $row['id']
 		)->fetch_all(MYSQL_ASSOC));
 	$classroom = $db->query('SELECT `department`.`name` as `place`,
 		`room`.`name` as `name` FROM `classroom`
@@ -42,7 +46,8 @@ while ($row = $q->fetch_assoc()) {
 			'year' => (int)$row['year'],
 			'department' => $department['name'],
 			'code' => $row['code'],
-			'query' => "?NENDO={$row['year']}&BUKYOKU={$department['department_id']}&CODE=$icode",
+			'query' => "?NENDO={$row['year']}&BUKYOKU="
+				. "{$department['department_id']}&CODE=$icode",
 			'title' => $row['title'],
 			'title_english' => $row['title_english'],
 			'teacher' => $teacher,
@@ -52,7 +57,9 @@ while ($row = $q->fetch_assoc()) {
 			'credit' => (float)$row['credit'],
 			'target' => $row['target'],
 			'style' => $row['style'],
-			'note' => $row['note']
+			'note' => $row['note'],
+			'public' => (bool)$row['public'],
+			'ches' => (bool)$row['ches']
 		))));
 	echo "\033[31G\033[K{$row['id']}";
 }
