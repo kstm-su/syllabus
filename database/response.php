@@ -24,8 +24,8 @@ while ($row = $q->fetch_assoc()) {
 	}
 	$schedule = array_map(
 		function($a){ return array(
-			'day' => is_null($a) ? NULL : (int)$a['day'],
-			'period' => is_null($a) ? NULL : (int)$a['period'],
+			'day' => is_null($a['day']) ? NULL : (int)$a['day'],
+			'period' => is_null($a['period']) ? NULL : (int)$a['period'],
 			'early' => (bool)$a['early'],
 			'late' => (bool)$a['late'],
 			'intensive' => (bool)$a['intensive'],
