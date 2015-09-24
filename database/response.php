@@ -47,7 +47,7 @@ while ($row = $q->fetch_assoc()) {
 			'department' => $department['name'],
 			'code' => $row['code'],
 			'query' => "?NENDO={$row['year']}&BUKYOKU="
-				. "{$department['department_id']}&CODE=$icode",
+				. "{$department['department_code']}&CODE=$icode",
 			'title' => $row['title'],
 			'title_english' => $row['title_english'],
 			'teacher' => $teacher,
