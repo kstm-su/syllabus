@@ -9,8 +9,9 @@ echo 'Downloading top page ... ';
 $src = file_get_contents(SEARCH_URL);
 echo PRINT_OK . PHP_EOL;
 $html = htmlobject($src);
-$year = (int)$html->body->form->table->tbody->tr->td->table->tbody->tr[1]->td[1]->input['value'];
-$departments = $html->body->form->table->tbody->tr->td->table->tbody->tr[0]->td[1]->select->option;
+$tr = $html->body->form->table->tbody->tr->td->table->tbody->tr;
+$year = (int)$tr[1]->td[1]->input['value'];
+$departments = $tr[0]->td[1]->select->option;
 
 
 /* 部局リストの更新 */
@@ -20,7 +21,10 @@ foreach ($departments as $department) {
 	$code = (string)$department['value'];
 	if ($code) {
 		$name = kana((string)$department);
-		$db->insert('department', array('department_code' => $code, 'name' => $name));
+		$db->insert('department', array(
+			'department_code' => $code,
+			'name' => $name
+		));
 	}
 }
 $db->commit();

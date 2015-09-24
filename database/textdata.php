@@ -3,6 +3,7 @@
 include_once('./util.php');
 
 $db = new DBAdmin();
+$db->truncate('textdata');
 
 echo 'Updating `textdata` table ... ';
 $q = $db->query('SELECT `id`, `text` FROM `raw`');
@@ -47,7 +48,7 @@ while ($row = $q->fetch_assoc()) {
 
 	foreach ($data as $key => $value) {
 	/* DBに追加 */
-		$db->replace('textdata',
+		$db->insert('textdata',
 			array('id' => $row['id'], 'key' => $key, 'value' => $value));
 	}
 	echo "\033[31G\033[K{$row['id']}";

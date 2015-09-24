@@ -21,11 +21,9 @@ while ($row = $q->fetch_assoc()) {
 			'description' => $desc
 		));
 	}
-	$s = $db->query("SELECT `semester_id` FROM `semester` WHERE `description` = '$desc'");
-	$sid = $s->fetch_assoc()['semester_id'];
-	$sid = is_null($sid) ? 'NULL' : "'" . $db->escape($sid) . "'";
-	$db->query("UPDATE `summary` SET `semester_id` = $sid WHERE `id` = '{$row['id']}'");
-	echo "\033[31G\033[K{$row['id']}";
+	$db->query('UPDATE `summary` SET `semester_id` =
+		(SELECT id FROM `semester` WHERE `description` = ?)
+		WHERE `id` = ?', $desc, $row['id']);
 }
 $db->commit();
 $db->close();

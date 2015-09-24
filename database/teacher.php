@@ -5,8 +5,7 @@ include_once('./util.php');
 $db = new DBAdmin();
 
 function insertTeacher($db, $id, $name, $main) {
-	$name = $db->escape($name);
-	$q = $db->query("SELECT `staff_id` FROM `staff` WHERE `name` = '$name'");
+	$q = $db->query('SELECT `staff_id` FROM `staff` WHERE `name` = ?', $name);
 	if ($q) {
 		$res = $q->fetch_assoc();
 		if ($res) {

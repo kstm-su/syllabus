@@ -24,8 +24,8 @@ while ($row = $q->fetch_assoc()) {
 	$data['public'] = (int)(strpos($tmp[0], '市民開放授業') !== FALSE);
 	$data['ches'] = (int)(strpos($tmp[0], '県内大学') !== FALSE);
 	$tmp = $tmp[1]->table->tbody->tr;
+	$data['title'] = $tmp[1]->td[1];
 	if (substr($data['code'], 0, 1) !== 'M') {
-		$data['title'] = $tmp[1]->td[1];
 		$data['title_english'] = $tmp[2]->td;
 		$data['teacher'] = $tmp[3]->td[1];
 		$data['sub_teacher'] = $tmp[3]->td[3];
@@ -37,7 +37,6 @@ while ($row = $q->fetch_assoc()) {
 		$data['style'] = $tmp[5]->td[3];
 		$data['note'] = $tmp[5]->td[5];
 	} else {
-		$data['title'] = $tmp[1]->td[1];
 		$data['teacher'] = $tmp[2]->td[1];
 		$data['semester'] = $tmp[3]->td[3];
 		$data['schedule'] = $tmp[3]->td[5];

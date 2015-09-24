@@ -11,7 +11,8 @@ echo 'Updating `raw` table ... ';
 $q = $db->selectAll('list');
 while ($row = $q->fetch_assoc()) {
 	if ($begin <= $row['id'] && (is_null($end) || $row['id'] <= $end)) {
-		$query = "?NENDO={$row['year']}&BUKYOKU={$row['department_code']}&CODE={$row['internal_code']}";
+		$query = "?NENDO={$row['year']}&BUKYOKU="
+			. "{$row['department_code']}&CODE={$row['internal_code']}";
 		$html = sjis2utf(file_get_contents(HTML_URL . $query));
 		$text = sjis2utf(file_get_contents(TEXT_URL . $query));
 		$db->replace('raw', array(
