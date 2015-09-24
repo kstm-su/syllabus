@@ -13,7 +13,7 @@ $db->begin();
 while ($row = $q->fetch_assoc()) {
 	$place = kana($row['place']);
 	$rooms = trim(kana($row['classroom']));
-	$did = $db->single('SELECT `department_id` FROM `room`
+	$did = $db->single('SELECT `department_id` FROM `department`
 		WHERE `name` = ?', $place);
 	if (is_null($did)) {
 		if ($place) {
