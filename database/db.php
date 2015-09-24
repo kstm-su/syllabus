@@ -21,10 +21,10 @@ class DBGuest extends mysqli {
 		return $this->query("SELECT * FROM `$table`");
 	}
 
-	/* SQLを実行 */
-	public function query($sql, ...$values) {
+	/* プレースホルダに値を挿入 */
+	public function sql($sql, ...$values) {
 		$i = 0;
-		$sql = preg_replace_callback('/\\\\([\\\\?])|(\?\??)/',
+		return preg_replace_callback('/\\\\([\\\\?])|(\?\??)/',
 			function($m) use ($values, &$i) {
 				if ($m[1]) {
 					return $m[1];
@@ -44,7 +44,11 @@ class DBGuest extends mysqli {
 				}
 				return implode(', ', $list);
 			}, $sql);
-		return parent::query($sql);
+	}
+
+	/* SQLを実行 */
+	public function query($sql, ...$values) {
+		return parent::query($this->sql($sql, ...$values));
 	}
 
 	/* SQLを実行して1行だけ返す */
