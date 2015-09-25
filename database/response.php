@@ -35,9 +35,9 @@ while ($row = $q->fetch_assoc()) {
 			'SELECT * FROM `schedule` WHERE `id` = ?', $row['id']
 		)->fetch_all(MYSQL_ASSOC));
 	$classroom = $db->query('SELECT `department`.`name` as `place`,
-		`room`.`name` as `name` FROM `classroom`
-		INNER JOIN `room` ON `room`.`room_id` = `classroom`.`room_id`
-		INNER JOIN `department`
+		`department`.`department_code` as `place_code`, `room`.`name` as `name`
+		FROM `classroom`INNER JOIN `room` ON
+		`room`.`room_id` = `classroom`.`room_id` INNER JOIN `department`
 		ON `department`.`department_id` = `room`.`department_id`
 		WHERE `classroom`.`id` = ?', $row['id'])->fetch_all(MYSQL_ASSOC);
 	$db->replace('response', array('id' => $row['id'],
@@ -45,6 +45,7 @@ while ($row = $q->fetch_assoc()) {
 			'id' => (int)$row['id'],
 			'year' => (int)$row['year'],
 			'department' => $department['name'],
+			'department_code' => $department['department_code'],
 			'code' => $row['code'],
 			'query' => "?NENDO={$row['year']}&BUKYOKU="
 				. "{$department['department_code']}&CODE=$icode",
