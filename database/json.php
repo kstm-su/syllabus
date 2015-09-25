@@ -4,7 +4,7 @@ include_once('./util.php');
 
 $db = new DBAdmin();
 
-echo 'Updating `response` table ... ';
+echo 'Updating `json` table ... ';
 $q = $db->selectAll('summary');
 $db->begin();
 while ($row = $q->fetch_assoc()) {
@@ -40,7 +40,7 @@ while ($row = $q->fetch_assoc()) {
 		`room`.`room_id` = `classroom`.`room_id` INNER JOIN `department`
 		ON `department`.`department_id` = `room`.`department_id`
 		WHERE `classroom`.`id` = ?', $row['id'])->fetch_all(MYSQL_ASSOC);
-	$db->replace('response', array('id' => $row['id'],
+	$db->replace('json', array('id' => $row['id'],
 		'json' => json_encode(array(
 			'id' => (int)$row['id'],
 			'year' => (int)$row['year'],

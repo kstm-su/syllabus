@@ -126,7 +126,7 @@ CREATE TABLE IF NOT EXISTS `classroom` (
 	UNIQUE KEY `uniq` (`id`, `room_id`)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COMMENT = '講義室';
 
-CREATE TABLE IF NOT EXISTS `response` (
+CREATE TABLE IF NOT EXISTS `json` (
 	`id` int(11) NOT NULL COMMENT '授業ID',
 	`json` longtext NOT NULL COMMENT '表示用JSON',
 	PRIMARY KEY (`id`)
