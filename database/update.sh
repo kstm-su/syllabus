@@ -1,5 +1,5 @@
 #!/bin/sh
-
+cd `dirname "${0}"`
 php list.php
 php raw.php
 php textdata.php
