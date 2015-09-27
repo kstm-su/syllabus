@@ -9,8 +9,8 @@ $end = isset($argv[2]) ? $argv[2] : NULL;
 
 echo 'Updating `raw` table ... ';
 $year = $db->single("SELECT `value` FROM `config`
-   	WHERE `name` = 'year' ORDER BY `id`");
-$q = $db->query('SELECT * FROM `list` WHERE `year` = ?', $year);
+   	WHERE `name` = 'year'");
+$q = $db->query('SELECT * FROM `list` WHERE `year` = ? ORDER BY `id`', $year);
 while ($row = $q->fetch_assoc()) {
 	if ($begin <= $row['id'] && (is_null($end) || $row['id'] <= $end)) {
 		$query = "?NENDO={$row['year']}&BUKYOKU="
