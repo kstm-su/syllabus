@@ -13,6 +13,11 @@ $tr = $html->body->form->table->tbody->tr->td->table->tbody->tr;
 $year = (int)$tr[1]->td[1]->input['value'];
 $departments = $tr[0]->td[1]->select->option;
 
+/* 年度を更新 */
+$db->query('INSERT INTO `config` (`name`, `value`) VALUES (\'year\', ?)
+	ON DUPLICATE KEY UPDATE `name` = \'year\', `value` = ?',
+	$year, $year
+);
 
 /* 部局リストの更新 */
 echo 'Updating `department` table ... ';
