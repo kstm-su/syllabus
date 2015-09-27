@@ -1,8 +1,9 @@
 CREATE TABLE IF NOT EXISTS `config` (
 	`config_id` int(11) NOT NULL AUTO_INCREMENT,
-	`name` varchar(255) NOT NULL,
-	`value` varchar(255) NOT NULL,
-	PRIMARY KEY (`config_id`)
+	`name` varchar(127) NOT NULL,
+	`value` varchar(127) NOT NULL,
+	PRIMARY KEY (`config_id`),
+	UNIQUE `uniq` (`name`, `value`)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COMMENT = '設定情報一覧';
 
 CREATE TABLE IF NOT EXISTS `list` (
