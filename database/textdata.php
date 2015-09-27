@@ -1,6 +1,6 @@
 <?php
 
-include_once('./util.php');
+include_once('../lib/util.php');
 
 $db = new DBAdmin();
 $db->truncate('textdata');
