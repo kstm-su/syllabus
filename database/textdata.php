@@ -32,9 +32,10 @@ while ($row = $q->fetch_assoc()) {
 			continue;
 		}
 
-		/* valueの英数字を半角に、カタカナを全角に変換 */
+		/* 英数字を半角に、カタカナを全角に変換 */
+		$key = trim(kana($key));
 		if (!is_null($value)) {
-			$value = kana($value);
+			$value = trim(kana($value));
 		}
 
 		if (isset($data[$key])) {
@@ -49,7 +50,12 @@ while ($row = $q->fetch_assoc()) {
 	foreach ($data as $key => $value) {
 	/* DBに追加 */
 		$db->insert('textdata',
-			array('id' => $row['id'], 'key' => $key, 'value' => $value));
+			array(
+				'id' => $row['id'],
+				'key' => $key,
+				'value' => $value
+			)
+		);
 	}
 	echo "\033[31G\033[K{$row['id']}";
 }
