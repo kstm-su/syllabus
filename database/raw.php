@@ -8,7 +8,8 @@ $begin = isset($argv[1]) ? (int)$argv[1] : 0;
 $end = isset($argv[2]) ? $argv[2] : NULL;
 
 echo 'Updating `raw` table ... ';
-$year = $db->single("SELECT `value` FROM `config` WHERE `name` = 'year'");
+$year = $db->single("SELECT `value` FROM `config`
+   	WHERE `name` = 'year' ORDER BY `id`");
 $q = $db->query('SELECT * FROM `list` WHERE `year` = ?', $year);
 while ($row = $q->fetch_assoc()) {
 	if ($begin <= $row['id'] && (is_null($end) || $row['id'] <= $end)) {
