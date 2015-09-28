@@ -2,7 +2,7 @@
 header("Content-Type: application/json; charset=UTF-8; Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Origin: *");
 //公開前にパーミッション設定と、dbクラスのパスの置き換えを行うこと
-require_once('../database/util.php');
+require_once('../lib/util.php');
 $db=new DBGuest();
 
 //対応予定のオプション一覧です。
