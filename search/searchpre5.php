@@ -8,6 +8,7 @@ require_once(__dir__.'/../lib/util.php');
 $db=new DBGuest();
 
 function numAnalyze($WHERE,$input){
+	global $db;
 	$WHERE=$db->escape($WHERE);
 	$input=$db->escape($input);
 	if (is_numeric($input)) {
@@ -25,3 +26,5 @@ function numAnalyze($WHERE,$input){
 	}
 	return "";
 }
+
+echo numAnalyze("abc","5..6").PHP_EOL;
