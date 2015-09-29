@@ -17,6 +17,9 @@ while ($row = $q->fetch_assoc()) {
 			. "{$row['department_code']}&CODE={$row['internal_code']}";
 		$html = sjis2utf(file_get_contents(HTML_URL . $query));
 		$text = sjis2utf(file_get_contents(TEXT_URL . $query));
+		if (mb_strpos($text, '<TITLE>授業が見つかりません</TITLE>') !== FALSE) {
+			continue;
+		}
 		$db->replace('raw', array(
 			'id' => $row['id'],
 			'html' => $html,
