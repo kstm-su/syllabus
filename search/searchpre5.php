@@ -26,5 +26,3 @@ function numAnalyze($WHERE,$input){
 	}
 	return "";
 }
-
-echo numAnalyze("abc","5..6").PHP_EOL;
