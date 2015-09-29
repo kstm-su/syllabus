@@ -1,8 +1,10 @@
 # database (データベース更新用スクリプト集)
 
 ## 使い方
-`database/update.sh`
-一覧の取得から整形までしてくれます
+1. データベースを作る
+2. 管理者ユーザーとSELECT専用ユーザーを作る
+3. `config.sample.php`を編集して`config.php`にリネーム
+4. `update.sh`を実行
 
 ## ファイル構成
 - classroom.php : 講義室に関するデータを整形
