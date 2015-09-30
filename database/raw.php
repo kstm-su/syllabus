@@ -8,7 +8,7 @@ $begin = isset($argv[1]) ? (int)$argv[1] : 0;
 $end = isset($argv[2]) ? $argv[2] : NULL;
 
 echo 'Updating `raw` table ... ';
-$year = $db->single("SELECT `value` FROM `config`
+$year = $db->single("SELECT MAX(`value`) FROM `config`
    	WHERE `name` = 'year'");
 $q = $db->query('SELECT * FROM `list` WHERE `year` = ? ORDER BY `id`', $year);
 while ($row = $q->fetch_assoc()) {
