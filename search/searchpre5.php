@@ -12,17 +12,17 @@ function numAnalyze($WHERE,$input){
 	$WHERE=$db->escape($WHERE);
 	$input=$db->escape($input);
 	if (is_numeric($input)) {
-		return "(`$WHERE` = $input) ";
+		return sprintf("(`%s` = %f) ",$WHERE,$input);
 	}
 	$numarray=explode('..',$input);
 	if (is_numeric($numarray[0])&&is_numeric($numarray[1])) {
-		return "(`$WHERE` BETWEEN $numarray[0] AND $numarray[1]) ";	
+		return sprintf("(`%s` BETWEEN %f AND %f) ",$WHERE,$numarray[0],$numarray[1]);	
 	}
 	if (is_numeric($numarray[0])) {
-		return "(`$WHERE` >= $numarray[0]) ";
+		return sprintf("(`%s` >= %f) ",$WHERE,$numarray[0]);
 	}
 	if (is_numeric($numarray[1])) {
-		return "(`$WHERE` <= $numarray[1]) ";
+		return sprintf("(`%s` <= %f) ",$WHERE,$numarray[1]);
 	}
 	return "";
 }
