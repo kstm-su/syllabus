@@ -9,6 +9,9 @@ $db=new DBGuest();
 
 function numAnalyze($WHERE,$input){
 	global $db;
+	if(!is_string($input)||!is_string($WHERE)){
+		return "";
+	}
 	$WHERE=$db->escape($WHERE);
 	$input=$db->escape($input);
 	if (is_numeric($input)) {
@@ -25,4 +28,14 @@ function numAnalyze($WHERE,$input){
 		return sprintf("(`%s` <= %f) ",$WHERE,$numarray[1]);
 	}
 	return "";
+}
+
+function strAnalyze($WHERE,$input){
+	global $db;
+	if(!is_string($input)||!is_string($WHERE)){
+		return "";
+	}
+	$WHERE=$db->escape($WHERE);
+	$input=$db->escape($input);
+	return sprintf("(`%s` LIKE `%%%s%%`) ",$WHERE,$input);
 }
