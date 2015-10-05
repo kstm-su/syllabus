@@ -2,8 +2,105 @@
 <html lang="ja">
 	<head>
 		<meta charset="utf-8" />
-		<title></title>
+		<title>シラバス検索 by kstm</title>
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
 	</head>
 	<body>
+		<h1>シラバス検索 by kstm</h1>
+		<form class="search" action="/api/search.php">
+			<ul>
+				<li><input name="title" placeholder="授業名" /></li>
+				<li><input name="teacher" placeholder="担当教員" /></li>
+				<li>
+					<label>
+						開講部局
+						<select class="department" name="department">
+							<option value="">すべて</option>
+						</select>
+					</label>
+				</li>
+				<li>
+					<label>
+						開講場所
+						<select class="department place" name="place">
+							<option value="">すべてのキャンパス</option>
+						</select>
+						<select class="classroom" name="classroom">
+							<option value="">すべての講義室</option>
+						</select>
+					</label>
+				</li>
+				<li><input type="submit" value="検索" /></li>
+			</ul>
+		</form>
+		<table class="result">
+			<tr>
+				<th>ID</th>
+				<th>授業名</th>
+				<th>担当教員</th>
+				<th>曜日時限</th>
+				<th>開講場所</th>
+				<th>講義室</th>
+			</tr>
+		</table>
+		<script type="text/javascript">
+$.post('/api/department.php', function(deps){
+	var sel = $('select.department');
+	deps.forEach(function(dep){
+		sel.append($('<option>').val(dep.department_id).text(dep.name));
+	});
+});
+$('select.place').on('change', function(){
+	$.post('/api/classroom.php',
+			{ department_id: $(this).val() },
+			function(rooms){
+				var sel = $('select.classroom');
+				$('.async', sel).remove();
+				rooms.forEach(function(room){
+					if (room.name === '') {
+						return;
+					}
+					var opt = $('<option>').val(room.room_id)
+						.text(room.name).addClass('async');
+					sel.append(opt);
+				});
+			});
+}).trigger('change');
+$('form.search').on('submit', function(e){
+	e.preventDefault();
+	$.post('/api/search.php', {
+		title: $('[name=title]', this).val(),
+		teacher: $('[name=teacher]', this).val(),
+		department: $('[name=department]', this).val(),
+		place: $('[name=place]', this).val(),
+		classroom: $('[name=classroom]', this).val()
+	}, function(data){
+		var syl = data.syllabus;
+		var tbl = $('table.result');
+		$('tr', tbl).remove('.async');
+		syl.forEach(function(row){
+			var tr = $('<tr>').addClass('async').appendTo(tbl);
+			tr.append($('<td>').text(row.id));
+			tr.append($('<td>').append($('<a>').attr({
+				href: 'https://campus-2.shinshu-u.ac.jp/syllabus/syllabus.dll/Display' + row.query,
+				target: '_blank'
+			}).text(row.title)));
+			tr.append($('<td>').text(row.teacher.join(', ')));
+			tr.append($('<td>').text(row.schedule.map(function(s){
+				if (s.day === null && s.period === null) {
+					return '不定';
+				}
+				return '日月火水木金土'.charAt(s.day) + s.period;
+			}).join(', ')));
+			tr.append($('<td>').text(row.classroom.map(function(room){
+				return room.place;
+			}).join(', ')));
+			tr.append($('<td>').text(row.classroom.map(function(room){
+				return room.name;
+			}).join(', ')));
+		});
+	});
+});
+		</script>
 	</body>
 </html>
