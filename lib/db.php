@@ -58,9 +58,22 @@ class DBGuest extends mysqli {
 			return FALSE;
 		}
 		$res = $q->fetch_assoc();
-		if (count($res) === 1){
-			/* 行が一つだけの場合は文字列に変換して返す */
+		if (count($res) === 1) {
+			/* 列が一つだけの場合は文字列に変換して返す */
 			return implode($res);
+		}
+		return $res;
+	}
+
+	/* SQLを実行してすべての行を返す */
+	public function fetchAll($sql, ...$values) {
+		$q = $this->query($sql, ...$values);
+		if ($q === FALSE) {
+			return FALSE;
+		}
+		$res = $q->fetch_all(MYSQL_ASSOC);
+		if (count($res[0]) === 1) {
+			return array_column($res, NULL, 0);
 		}
 		return $res;
 	}
