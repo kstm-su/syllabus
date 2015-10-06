@@ -2,8 +2,330 @@
 <html lang="ja">
 	<head>
 		<meta charset="utf-8" />
-		<title></title>
+		<title>シラバス検索 by kstm</title>
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
 	</head>
 	<body>
+		<h1>シラバス検索 by kstm</h1>
+		<form class="search" action="/api/search.php">
+			<ul>
+				<li><input name="year" placeholder="年度" /></li>
+				<li>
+					<select name="semester">
+						<option value="">学期</option>
+						<option value="前期">前期</option>
+						<option value="後期">後期</option>
+						<option value="通年">通年</option>
+						<!--
+		  <option value="">学期</option>
+		  <option value="first">前期</option>
+		  <option value="second">後期</option>
+		  <option value="fullyear">通年</option>
+		  <option value="other">その他</option>
+						-->
+					</select>
+				</li>
+				<li>
+					<input name="code" placeholder="履修コード" list="code-datalist" />
+					<datalist id="code-datalist" />
+				</li>
+				<li>
+					<input name="title" placeholder="授業名" list="title-datalist" />
+					<datalist id="title-datalist" />
+				</li>
+				<li>
+					<input name="teacher" placeholder="担当教員" list="teacher-datalist" />
+					<datalist id="teacher-datalist" />
+				</li>
+				<li>
+					<label>
+						開講部局
+						<select class="department" name="department">
+							<option value="">すべて</option>
+						</select>
+					</label>
+				</li>
+				<li>
+					<label>
+						開講場所
+						<select class="department place" name="place">
+							<option value="">すべてのキャンパス</option>
+						</select>
+						<select class="classroom" name="classroom">
+							<option value="">すべての講義室</option>
+						</select>
+					</label>
+				</li>
+				<li>
+					<table class="schedule-table">
+						<tr class="schedule-weekdays">
+							<td></td>
+							<th data-day="1">月</th>
+							<th data-day="2">火</th>
+							<th data-day="3">水</th>
+							<th data-day="4">木</th>
+							<th data-day="5">金</th>
+							<th data-day="6">土</th>
+						</tr>
+						<tr>
+							<th data-period="1">1</th>
+							<td><input type="checkbox" name="schedule" value="MO1" /></td>
+							<td><input type="checkbox" name="schedule" value="TU1" /></td>
+							<td><input type="checkbox" name="schedule" value="WE1" /></td>
+							<td><input type="checkbox" name="schedule" value="TH1" /></td>
+							<td><input type="checkbox" name="schedule" value="FR1" /></td>
+							<td><input type="checkbox" name="schedule" value="SA1" /></td>
+						</tr>
+						<tr>
+							<th data-period="2">2</th>
+							<td><input type="checkbox" name="schedule" value="MO2" /></td>
+							<td><input type="checkbox" name="schedule" value="TU2" /></td>
+							<td><input type="checkbox" name="schedule" value="WE2" /></td>
+							<td><input type="checkbox" name="schedule" value="TH2" /></td>
+							<td><input type="checkbox" name="schedule" value="FR2" /></td>
+							<td><input type="checkbox" name="schedule" value="SA2" /></td>
+						</tr>
+						<tr>
+							<th data-period="3">3</th>
+							<td><input type="checkbox" name="schedule" value="MO3" /></td>
+							<td><input type="checkbox" name="schedule" value="TU3" /></td>
+							<td><input type="checkbox" name="schedule" value="WE3" /></td>
+							<td><input type="checkbox" name="schedule" value="TH3" /></td>
+							<td><input type="checkbox" name="schedule" value="FR3" /></td>
+							<td><input type="checkbox" name="schedule" value="SA3" /></td>
+						</tr>
+						<tr>
+							<th data-period="4">4</th>
+							<td><input type="checkbox" name="schedule" value="MO4" /></td>
+							<td><input type="checkbox" name="schedule" value="TU4" /></td>
+							<td><input type="checkbox" name="schedule" value="WE4" /></td>
+							<td><input type="checkbox" name="schedule" value="TH4" /></td>
+							<td><input type="checkbox" name="schedule" value="FR4" /></td>
+							<td><input type="checkbox" name="schedule" value="SA4" /></td>
+						</tr>
+						<tr>
+							<th data-period="5">5</th>
+							<td><input type="checkbox" name="schedule" value="MO5" /></td>
+							<td><input type="checkbox" name="schedule" value="TU5" /></td>
+							<td><input type="checkbox" name="schedule" value="WE5" /></td>
+							<td><input type="checkbox" name="schedule" value="TH5" /></td>
+							<td><input type="checkbox" name="schedule" value="FR5" /></td>
+							<td><input type="checkbox" name="schedule" value="SA5" /></td>
+						</tr>
+						<tr>
+							<th data-period="6">6</th>
+							<td><input type="checkbox" name="schedule" value="MO6" /></td>
+							<td><input type="checkbox" name="schedule" value="TU6" /></td>
+							<td><input type="checkbox" name="schedule" value="WE6" /></td>
+							<td><input type="checkbox" name="schedule" value="TH6" /></td>
+							<td><input type="checkbox" name="schedule" value="FR6" /></td>
+							<td><input type="checkbox" name="schedule" value="SA6" /></td>
+						</tr>
+						<tr>
+							<th data-period="7">7</th>
+							<td><input type="checkbox" name="schedule" value="MO7" /></td>
+							<td><input type="checkbox" name="schedule" value="TU7" /></td>
+							<td><input type="checkbox" name="schedule" value="WE7" /></td>
+							<td><input type="checkbox" name="schedule" value="TH7" /></td>
+							<td><input type="checkbox" name="schedule" value="FR7" /></td>
+							<td><input type="checkbox" name="schedule" value="SA7" /></td>
+						</tr>
+					</table>
+				</li>
+				<li>
+					<input type="submit" value="検索" />
+					<input type="button" class="show-mylist" value="登録した授業を表示" />
+				</li>
+			</ul>
+		</form>
+		<table class="result">
+			<thead>
+				<tr>
+					<th></th>
+					<th>ID</th>
+					<th>履修コード</th>
+					<th>授業名</th>
+					<th>担当教員</th>
+					<th>年度学期</th>
+					<th>曜日時限</th>
+					<th>開講場所</th>
+					<th>講義室</th>
+				</tr>
+			</thead>
+			<tbody>
+			</tbody>
+		</table>
+		<button class="show-next">続きを表示</button>
+		<script type="text/javascript">
+$('form.search [name=year]').val(new Date().getFullYear());
+$.post('/api/department.php', function(deps){
+	var sel = $('select.department');
+	deps.forEach(function(dep){
+		sel.append($('<option>').val(dep.department_id).text(dep.name));
+	});
+});
+$('form.search [name=code]').on('change keyup', function(){
+	if ($(this).data('value') === $(this).val()) {
+		return;
+	}
+	$(this).data('value', $(this).val());
+	$.post('/api/completion.php', {code: $(this).val()}, function(codes){
+		var dlist = $('form.search #code-datalist').empty();
+		if (codes == null) {
+			return;
+		}
+		codes.forEach(function(code){
+			dlist.append($('<option>').val(code));
+		});
+	});
+});
+$('form.search [name=title]').on('change keyup', function(){
+	if ($(this).data('value') === $(this).val()) {
+		return;
+	}
+	$(this).data('value', $(this).val());
+	$.post('/api/completion.php', {title: $(this).val()}, function(titles){
+		var dlist = $('form.search #title-datalist').empty();
+		if (titles == null) {
+			return;
+		}
+		titles.forEach(function(title){
+			dlist.append($('<option>').val(title));
+		});
+	});
+});
+$('form.search [name=teacher]').on('change keyup', function(){
+	if ($(this).data('value') === $(this).val()) {
+		return;
+	}
+	$(this).data('value', $(this).val());
+	$.post('/api/completion.php', {teacher: $(this).val()}, function(teachers){
+		var dlist = $('form.search #teacher-datalist').empty();
+		if (teachers == null) {
+			return;
+		}
+		teachers.forEach(function(teacher){
+			dlist.append($('<option>').val(teacher));
+		});
+	});
+});
+$('select.place').on('change', function(){
+	$.post('/api/classroom.php',
+			{ department_id: $(this).val() },
+			function(rooms){
+				var sel = $('select.classroom');
+				$('.async', sel).remove();
+				rooms.forEach(function(room){
+					if (room.name === '') {
+						return;
+					}
+					var opt = $('<option>').val(room.room_id)
+						.text(room.name).addClass('async');
+					sel.append(opt);
+				});
+			});
+}).trigger('change');
+$('form.search table.schedule-table th').on('click', function(){
+	if ($(this).parent().hasClass('schedule-weekdays')) {
+		var checked = !!$(this).data('checked');
+		$('form.search table.schedule-table td:nth-child(' + ($(this).data('day') + 1) + ') > input').prop('checked', checked);
+		$(this).data('checked', !checked);
+	} else {
+		var checked = !!$(this).data('checked');
+		$('form.search table.schedule-table tr:nth-child(' + ($(this).data('period') + 1) + ') input').prop('checked', checked);
+		$(this).data('checked', !checked);
+	}
+});
+$('form.search').on('submit', function(e){
+	e.preventDefault();
+	var data = {};
+	$('input, select, textarea', this).each(function(){
+		if (this.type === 'checkbox') {
+			if (data[this.name] == null) {
+				data[this.name] = [];
+			}
+			if (this.checked) {
+				data[this.name].push(this.value);
+			}
+			return;
+		}
+		data[this.name] = this.value;
+	});
+	$.post('/api/search.php', data, function(res){
+		$('table.result').trigger('update', [res, data, true]);
+	});
+});
+$('form.search .show-mylist').on('click', function(){
+	var mylist = JSON.parse(localStorage['mylist'] || '[]');
+	var data = {id: []};
+	mylist.forEach(function(flag, id){
+		if (flag) {
+			data.id.push(id);
+		}
+	});
+	$.post('/api/search.php', data, function(res){
+		$('table.result').trigger('update', [res, data, true]);
+	});
+});
+$('button.show-next').on('click', function(){
+	var formdata = $(this).data('formdata');
+	formdata.page = $(this).data('begin');
+	$.post('/api/search.php', formdata, function(res){
+		$('table.result').trigger('update', [res, formdata, false]);
+	});
+});
+$('table.result').on('change', 'input.subject', function(){
+	var mylist = JSON.parse(localStorage['mylist'] || '[]');
+	mylist[$(this).data('id')] = $(this).prop('checked');
+	localStorage['mylist'] = JSON.stringify(mylist);
+}).on('update', function(e, res, data, remove){
+	var syl = res.syllabus;
+	var tbl = $('tbody', this);
+	if (remove) {
+		$('tr', tbl).remove();
+	}
+	var mylist = JSON.parse(localStorage['mylist'] || '[]');
+	syl.forEach(function(row){
+		var tr = $('<tr>').appendTo(tbl);
+		tr.append($('<td>').append($('<input>').attr('type', 'checkbox').addClass('subject').data('id', row.id).prop('checked', mylist[row.id])));
+		tr.append($('<td>').text(row.id));
+		tr.append($('<td>').text(row.code));
+		tr.append($('<td>').append($('<a>').attr({
+			href: 'https://campus-2.shinshu-u.ac.jp/syllabus/syllabus.dll/Display' + row.query,
+			target: '_blank'
+		}).text(row.title)));
+		tr.append($('<td>').text(row.teacher.join(', ')));
+		tr.append($('<td>').text(row.year + row.semester));
+		tr.append($('<td>').text(row.schedule.map(function(s){
+			if (s.day === null && s.period === null) {
+				return '不定';
+			}
+			return '日月火水木金土'.charAt(s.day) + s.period;
+		}).join(', ')));
+		tr.append($('<td>').text(row.classroom.map(function(room){
+			return room.place;
+		}).join(', ')));
+		tr.append($('<td>').text(row.classroom.map(function(room){
+			return room.name;
+		}).join(', ')));
+	});
+	var next = $('button.show-next');
+	if (res.page.next) {
+		next.show().data({
+			begin: res.page.end + 1,
+			formdata: data
+		});
+	} else {
+		next.hide();
+	}
+}).trigger('update', [{
+	syllabus: [],
+	page: {
+		begin: 0,
+		end: 0,
+		next: false
+	},
+}, {}]);
+		</script>
 	</body>
 </html>
