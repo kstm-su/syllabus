@@ -156,6 +156,7 @@
 			</tbody>
 		</table>
 		<button class="show-next">続きを表示</button>
+		<a href="javascript:void(0)" class="quick-regist">クイック履修登録用ブックマークレット</a>
 		<script type="text/javascript">
 $('form.search [name=year]').val(new Date().getFullYear());
 $.post('/api/department.php', function(deps){
@@ -318,6 +319,7 @@ $('table.result').on('change', 'input.subject', function(){
 	} else {
 		next.hide();
 	}
+	$('.quick-regist').prop('href', 'javascript:void([' + syl.map(function(s){return "'"+s.code+"'";}).join() + '].forEach(function(c,i){document.getElementsByName("CODE_"+(i+1))[0].value=c}))');
 }).trigger('update', [{
 	syllabus: [],
 	page: {
