@@ -462,10 +462,24 @@ foreach ($queryarray as $x) {
 	}
 	$QueryArrayCount++;
 }
-$lastquery.=") LIMIT 0, 100;";
+$offset = 0;
+$count = 100;
+if (isset($_REQUEST['page'])) {
+	$page = explode('..', $_REQUEST['page']);
+	if (count($page) >= 1) {
+		if (count($page) === 2 && is_numeric($page[0]) && is_numeric($page[1])) {
+			$offset = (int)$page[0];
+			$count = (int)$page[1] - $offset + 1;
+		} else if (is_numeric($page[0])) {
+			$offset = (int)$page[0];
+		} else if (count($page) === 2 && is_numeric($page[1])) {
+		}
+	}
+}
+$lastquery.=") LIMIT $offset, " . (min(100, $count) + 1);
 
-$result=$db->query($lastquery);
-echo '{"syllabus":[' . implode(',', array_map('implode', $result->fetch_all())) . '],"page":'. json_encode(array('begin' => 0, 'end' => 100)) .',"sql":"' . $lastquery . '"}';
+$result=$db->fetchAll($lastquery);
+echo '{"syllabus":[' . implode(',', array_slice($result, 0, $count)) . '],"page":'. json_encode(array('begin' => $offset, 'end' => min(100, count($result)) + $offset - 1, 'next' => count($result) > 100)) .',"sql":"' . $lastquery . '"}';
 /*
 $reurn =array();
 while($row=$result->fetch_assoc()){
@@ -474,4 +488,4 @@ while($row=$result->fetch_assoc()){
 
 $db->close();
 echo json_encode($return,JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
-*/
+ */

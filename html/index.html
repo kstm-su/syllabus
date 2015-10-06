@@ -17,11 +17,11 @@
 						<option value="後期">後期</option>
 						<option value="通年">通年</option>
 						<!--
-						<option value="">学期</option>
-						<option value="first">前期</option>
-						<option value="second">後期</option>
-						<option value="fullyear">通年</option>
-						<option value="other">その他</option>
+		  <option value="">学期</option>
+		  <option value="first">前期</option>
+		  <option value="second">後期</option>
+		  <option value="fullyear">通年</option>
+		  <option value="other">その他</option>
 						-->
 					</select>
 				</li>
@@ -132,23 +132,30 @@
 						</tr>
 					</table>
 				</li>
-				<li><input type="submit" value="検索" /></li>
-				<li><input type="button" class="show-mylist" value="登録した授業を表示" /></li>
+				<li>
+					<input type="submit" value="検索" />
+					<input type="button" class="show-mylist" value="登録した授業を表示" />
+				</li>
 			</ul>
 		</form>
 		<table class="result">
-			<tr>
-				<th></th>
-				<th>ID</th>
-				<th>履修コード</th>
-				<th>授業名</th>
-				<th>担当教員</th>
-				<th>年度学期</th>
-				<th>曜日時限</th>
-				<th>開講場所</th>
-				<th>講義室</th>
-			</tr>
+			<thead>
+				<tr>
+					<th></th>
+					<th>ID</th>
+					<th>履修コード</th>
+					<th>授業名</th>
+					<th>担当教員</th>
+					<th>年度学期</th>
+					<th>曜日時限</th>
+					<th>開講場所</th>
+					<th>講義室</th>
+				</tr>
+			</thead>
+			<tbody>
+			</tbody>
 		</table>
+		<button class="show-next">続きを表示</button>
 		<script type="text/javascript">
 $('form.search [name=year]').val(new Date().getFullYear());
 $.post('/api/department.php', function(deps){
@@ -244,33 +251,42 @@ $('form.search').on('submit', function(e){
 		}
 		data[this.name] = this.value;
 	});
-	$.post('/api/search.php', data, function(data){
-		$('table.result').trigger('update', [data]);
+	$.post('/api/search.php', data, function(res){
+		$('table.result').trigger('update', [res, data, true]);
 	});
 });
 $('form.search .show-mylist').on('click', function(){
 	var mylist = JSON.parse(localStorage['mylist'] || '[]');
-	var ids = [];
+	var data = {id: []};
 	mylist.forEach(function(flag, id){
 		if (flag) {
-			ids.push(id);
+			data.id.push(id);
 		}
 	});
-	$.post('/api/search.php', {id: ids}, function(data){
-		$('table.result').trigger('update', [data]);
+	$.post('/api/search.php', data, function(res){
+		$('table.result').trigger('update', [res, data, true]);
+	});
+});
+$('button.show-next').on('click', function(){
+	var formdata = $(this).data('formdata');
+	formdata.page = $(this).data('begin');
+	$.post('/api/search.php', formdata, function(res){
+		$('table.result').trigger('update', [res, formdata, false]);
 	});
 });
 $('table.result').on('change', 'input.subject', function(){
 	var mylist = JSON.parse(localStorage['mylist'] || '[]');
 	mylist[$(this).data('id')] = $(this).prop('checked');
 	localStorage['mylist'] = JSON.stringify(mylist);
-}).on('update', function(e, data){
-	var syl = data.syllabus;
-	var tbl = $(this);
-	$('tr', tbl).remove('.async');
+}).on('update', function(e, res, data, remove){
+	var syl = res.syllabus;
+	var tbl = $('tbody', this);
+	if (remove) {
+		$('tr', tbl).remove();
+	}
 	var mylist = JSON.parse(localStorage['mylist'] || '[]');
 	syl.forEach(function(row){
-		var tr = $('<tr>').addClass('async').appendTo(tbl);
+		var tr = $('<tr>').appendTo(tbl);
 		tr.append($('<td>').append($('<input>').attr('type', 'checkbox').addClass('subject').data('id', row.id).prop('checked', mylist[row.id])));
 		tr.append($('<td>').text(row.id));
 		tr.append($('<td>').text(row.code));
@@ -293,7 +309,23 @@ $('table.result').on('change', 'input.subject', function(){
 			return room.name;
 		}).join(', ')));
 	});
-});
+	var next = $('button.show-next');
+	if (res.page.next) {
+		next.show().data({
+			begin: res.page.end + 1,
+			formdata: data
+		});
+	} else {
+		next.hide();
+	}
+}).trigger('update', [{
+	syllabus: [],
+	page: {
+		begin: 0,
+		end: 0,
+		next: false
+	},
+}, {}]);
 		</script>
 	</body>
 </html>
