@@ -270,6 +270,7 @@ case "season":{
 			if (is_numeric($y)) {
 				$memo="(SELECT semester_id FROM semester WHERE semester_id = $y) as D$SerchOptioncount ";
 			}else{
+				//first, second, fullyear, otherに対応させる
 				$memo="(SELECT semester_id FROM semester WHERE description LIKE '%$y%') as D$SerchOptioncount ";
 			}
 			if($SerchOptioncount>0){
