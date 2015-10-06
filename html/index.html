@@ -9,6 +9,22 @@
 		<h1>シラバス検索 by kstm</h1>
 		<form class="search" action="/api/search.php">
 			<ul>
+				<li><input name="year" placeholder="年度" /></li>
+				<li>
+					<select name="semester">
+						<option value="">学期</option>
+						<option value="前期">前期</option>
+						<option value="後期">後期</option>
+						<option value="通年">通年</option>
+						<!--
+						<option value="">学期</option>
+						<option value="first">前期</option>
+						<option value="second">後期</option>
+						<option value="fullyear">通年</option>
+						<option value="other">その他</option>
+						-->
+					</select>
+				</li>
 				<li><input name="title" placeholder="授業名" /></li>
 				<li><input name="teacher" placeholder="担当教員" /></li>
 				<li>
@@ -30,6 +46,66 @@
 						</select>
 					</label>
 				</li>
+				<li>
+					<table>
+						<tr>
+							<td></td>
+							<th>月</th>
+							<th>火</th>
+							<th>水</th>
+							<th>木</th>
+							<th>金</th>
+						</tr>
+						<tr>
+							<th>1</th>
+							<td><input type="checkbox" name="schedule" value="MO1" checked="checked" /></td>
+							<td><input type="checkbox" name="schedule" value="TU1" checked="checked" /></td>
+							<td><input type="checkbox" name="schedule" value="WE1" checked="checked" /></td>
+							<td><input type="checkbox" name="schedule" value="TH1" checked="checked" /></td>
+							<td><input type="checkbox" name="schedule" value="FR1" checked="checked" /></td>
+						</tr>
+						<tr>
+							<th>2</th>
+							<td><input type="checkbox" name="schedule" value="MO2" checked="checked" /></td>
+							<td><input type="checkbox" name="schedule" value="TU2" checked="checked" /></td>
+							<td><input type="checkbox" name="schedule" value="WE2" checked="checked" /></td>
+							<td><input type="checkbox" name="schedule" value="TH2" checked="checked" /></td>
+							<td><input type="checkbox" name="schedule" value="FR2" checked="checked" /></td>
+						</tr>
+						<tr>
+							<th>3</th>
+							<td><input type="checkbox" name="schedule" value="MO3" checked="checked" /></td>
+							<td><input type="checkbox" name="schedule" value="TU3" checked="checked" /></td>
+							<td><input type="checkbox" name="schedule" value="WE3" checked="checked" /></td>
+							<td><input type="checkbox" name="schedule" value="TH3" checked="checked" /></td>
+							<td><input type="checkbox" name="schedule" value="FR3" checked="checked" /></td>
+						</tr>
+						<tr>
+							<th>4</th>
+							<td><input type="checkbox" name="schedule" value="MO4" checked="checked" /></td>
+							<td><input type="checkbox" name="schedule" value="TU4" checked="checked" /></td>
+							<td><input type="checkbox" name="schedule" value="WE4" checked="checked" /></td>
+							<td><input type="checkbox" name="schedule" value="TH4" checked="checked" /></td>
+							<td><input type="checkbox" name="schedule" value="FR4" checked="checked" /></td>
+						</tr>
+						<tr>
+							<th>5</th>
+							<td><input type="checkbox" name="schedule" value="MO5" checked="checked" /></td>
+							<td><input type="checkbox" name="schedule" value="TU5" checked="checked" /></td>
+							<td><input type="checkbox" name="schedule" value="WE5" checked="checked" /></td>
+							<td><input type="checkbox" name="schedule" value="TH5" checked="checked" /></td>
+							<td><input type="checkbox" name="schedule" value="FR5" checked="checked" /></td>
+						</tr>
+						<tr>
+							<th>6</th>
+							<td><input type="checkbox" name="schedule" value="MO6" checked="checked" /></td>
+							<td><input type="checkbox" name="schedule" value="TU6" checked="checked" /></td>
+							<td><input type="checkbox" name="schedule" value="WE6" checked="checked" /></td>
+							<td><input type="checkbox" name="schedule" value="TH6" checked="checked" /></td>
+							<td><input type="checkbox" name="schedule" value="FR6" checked="checked" /></td>
+						</tr>
+					</table>
+				</li>
 				<li><input type="submit" value="検索" /></li>
 			</ul>
 		</form>
@@ -38,12 +114,14 @@
 				<th>ID</th>
 				<th>授業名</th>
 				<th>担当教員</th>
+				<th>年度学期</th>
 				<th>曜日時限</th>
 				<th>開講場所</th>
 				<th>講義室</th>
 			</tr>
 		</table>
 		<script type="text/javascript">
+$('form.search [name=year]').val(new Date().getFullYear());
 $.post('/api/department.php', function(deps){
 	var sel = $('select.department');
 	deps.forEach(function(dep){
@@ -68,13 +146,20 @@ $('select.place').on('change', function(){
 }).trigger('change');
 $('form.search').on('submit', function(e){
 	e.preventDefault();
-	$.post('/api/search.php', {
-		title: $('[name=title]', this).val(),
-		teacher: $('[name=teacher]', this).val(),
-		department: $('[name=department]', this).val(),
-		place: $('[name=place]', this).val(),
-		classroom: $('[name=classroom]', this).val()
-	}, function(data){
+	var data = {};
+	$('input, select, textarea', this).each(function(){
+		if (this.type === 'checkbox') {
+			if (data[this.name] == null) {
+				data[this.name] = [];
+			}
+			if (this.checked) {
+				data[this.name].push(this.value);
+			}
+			return;
+		}
+		data[this.name] = this.value;
+	});
+	$.post('/api/search.php', data, function(data){
 		var syl = data.syllabus;
 		var tbl = $('table.result');
 		$('tr', tbl).remove('.async');
@@ -86,6 +171,7 @@ $('form.search').on('submit', function(e){
 				target: '_blank'
 			}).text(row.title)));
 			tr.append($('<td>').text(row.teacher.join(', ')));
+			tr.append($('<td>').text(row.year + row.semester));
 			tr.append($('<td>').text(row.schedule.map(function(s){
 				if (s.day === null && s.period === null) {
 					return '不定';

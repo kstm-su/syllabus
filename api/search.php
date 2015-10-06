@@ -8,7 +8,8 @@ $db=new DBGuest();
 //対応予定のオプション一覧です。
 $SerchOptions=array("id","year","code","subject","title","teacher","staff","season","semester","schedule","location","room","classroom","unit","credit","target","style","department","word");
 //曜日の配列です。順番が大事(mon->2)なので、追加は構わないが、挿入するときはよく注意すること。
-$dweek=array("sun","mon","tue","wed","thu","fri","sat");
+//$dweek=array("sun","mon","tue","wed","thu","fri","sat");
+$dweek=array("su","mo","tu","we","th","fr","sa");
 
 $input=array_map(function($req){
 	if (is_array($req)) {
@@ -172,7 +173,8 @@ case "schedule": {
 			if(is_numeric($y)){
 				$str="period = $y";
 			}else{
-				$dweekSubscript= array_search(substr($y,0,3),$dweek);
+				//$dweekSubscript= array_search(substr($y,0,3),$dweek);
+				$dweekSubscript= array_search(substr($y,0,2),$dweek);
 				if (mb_strpos($y,"集")!==FALSE) {
 					if($str!==""){
 						$str.=" AND ";
@@ -193,7 +195,8 @@ case "schedule": {
 						$str.="day = $dweekSubscript ";
 					}
 				}
-				if (strlen($y)>3&&is_numeric($num=substr($y,3))) {
+				//if (strlen($y)>3&&is_numeric($num=substr($y,3))) {
+				if (strlen($y)>2&&is_numeric($num=substr($y,2))) {
 					if($str!==""){
 						$str.=" AND ";
 					}
