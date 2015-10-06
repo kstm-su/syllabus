@@ -72,8 +72,8 @@ class DBGuest extends mysqli {
 			return FALSE;
 		}
 		$res = $q->fetch_all(MYSQL_ASSOC);
-		if (count($res[0]) === 1) {
-			return array_column($res, NULL, 0);
+		if (isset($res[0]) && count($res[0]) === 1) {
+			return array_column($res, array_keys($res[0])[0]);
 		}
 		return $res;
 	}
