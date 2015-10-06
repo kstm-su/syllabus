@@ -26,11 +26,15 @@
 					</select>
 				</li>
 				<li>
-					<input name="title" placeholder="授業名" autocomplete="on" list="title-datalist" />
+					<input name="code" placeholder="履修コード" list="code-datalist" />
+					<datalist id="code-datalist" />
+				</li>
+				<li>
+					<input name="title" placeholder="授業名" list="title-datalist" />
 					<datalist id="title-datalist" />
 				</li>
 				<li>
-					<input name="teacher" placeholder="担当教員" autocomplete="on" list="teacher-datalist" />
+					<input name="teacher" placeholder="担当教員" list="teacher-datalist" />
 					<datalist id="teacher-datalist" />
 				</li>
 				<li>
@@ -150,12 +154,27 @@ $.post('/api/department.php', function(deps){
 		sel.append($('<option>').val(dep.department_id).text(dep.name));
 	});
 });
+$('form.search [name=code]').on('change keyup', function(){
+	if ($(this).data('value') === $(this).val()) {
+		return;
+	}
+	$(this).data('value', $(this).val());
+	$.post('/api/completion.php', {code: $(this).val()}, function(codes){
+		var dlist = $('form.search #code-datalist').empty();
+		if (codes == null) {
+			return;
+		}
+		codes.forEach(function(code){
+			dlist.append($('<option>').val(code));
+		});
+	});
+});
 $('form.search [name=title]').on('change keyup', function(){
 	if ($(this).data('value') === $(this).val()) {
 		return;
 	}
 	$(this).data('value', $(this).val());
-	$.post('/api/title.php', {title: $(this).val()}, function(titles){
+	$.post('/api/completion.php', {title: $(this).val()}, function(titles){
 		var dlist = $('form.search #title-datalist').empty();
 		if (titles == null) {
 			return;
@@ -170,7 +189,7 @@ $('form.search [name=teacher]').on('change keyup', function(){
 		return;
 	}
 	$(this).data('value', $(this).val());
-	$.post('/api/teacher.php', {teacher: $(this).val()}, function(teachers){
+	$.post('/api/completion.php', {teacher: $(this).val()}, function(teachers){
 		var dlist = $('form.search #teacher-datalist').empty();
 		if (teachers == null) {
 			return;
