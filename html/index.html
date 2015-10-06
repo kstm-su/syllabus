@@ -25,8 +25,14 @@
 						-->
 					</select>
 				</li>
-				<li><input name="title" placeholder="授業名" /></li>
-				<li><input name="teacher" placeholder="担当教員" /></li>
+				<li>
+					<input name="title" placeholder="授業名" autocomplete="on" list="title-datalist" />
+					<datalist id="title-datalist" />
+				</li>
+				<li>
+					<input name="teacher" placeholder="担当教員" autocomplete="on" list="teacher-datalist" />
+					<datalist id="teacher-datalist" />
+				</li>
 				<li>
 					<label>
 						開講部局
@@ -47,62 +53,78 @@
 					</label>
 				</li>
 				<li>
-					<table>
-						<tr>
+					<table class="schedule-table">
+						<tr class="schedule-weekdays">
 							<td></td>
-							<th>月</th>
-							<th>火</th>
-							<th>水</th>
-							<th>木</th>
-							<th>金</th>
+							<th data-day="1">月</th>
+							<th data-day="2">火</th>
+							<th data-day="3">水</th>
+							<th data-day="4">木</th>
+							<th data-day="5">金</th>
+							<th data-day="6">土</th>
 						</tr>
 						<tr>
-							<th>1</th>
+							<th data-period="1">1</th>
 							<td><input type="checkbox" name="schedule" value="MO1" checked="checked" /></td>
 							<td><input type="checkbox" name="schedule" value="TU1" checked="checked" /></td>
 							<td><input type="checkbox" name="schedule" value="WE1" checked="checked" /></td>
 							<td><input type="checkbox" name="schedule" value="TH1" checked="checked" /></td>
 							<td><input type="checkbox" name="schedule" value="FR1" checked="checked" /></td>
+							<td><input type="checkbox" name="schedule" value="SA1" checked="checked" /></td>
 						</tr>
 						<tr>
-							<th>2</th>
+							<th data-period="2">2</th>
 							<td><input type="checkbox" name="schedule" value="MO2" checked="checked" /></td>
 							<td><input type="checkbox" name="schedule" value="TU2" checked="checked" /></td>
 							<td><input type="checkbox" name="schedule" value="WE2" checked="checked" /></td>
 							<td><input type="checkbox" name="schedule" value="TH2" checked="checked" /></td>
 							<td><input type="checkbox" name="schedule" value="FR2" checked="checked" /></td>
+							<td><input type="checkbox" name="schedule" value="SA2" checked="checked" /></td>
 						</tr>
 						<tr>
-							<th>3</th>
+							<th data-period="3">3</th>
 							<td><input type="checkbox" name="schedule" value="MO3" checked="checked" /></td>
 							<td><input type="checkbox" name="schedule" value="TU3" checked="checked" /></td>
 							<td><input type="checkbox" name="schedule" value="WE3" checked="checked" /></td>
 							<td><input type="checkbox" name="schedule" value="TH3" checked="checked" /></td>
 							<td><input type="checkbox" name="schedule" value="FR3" checked="checked" /></td>
+							<td><input type="checkbox" name="schedule" value="SA3" checked="checked" /></td>
 						</tr>
 						<tr>
-							<th>4</th>
+							<th data-period="4">4</th>
 							<td><input type="checkbox" name="schedule" value="MO4" checked="checked" /></td>
 							<td><input type="checkbox" name="schedule" value="TU4" checked="checked" /></td>
 							<td><input type="checkbox" name="schedule" value="WE4" checked="checked" /></td>
 							<td><input type="checkbox" name="schedule" value="TH4" checked="checked" /></td>
 							<td><input type="checkbox" name="schedule" value="FR4" checked="checked" /></td>
+							<td><input type="checkbox" name="schedule" value="SA4" checked="checked" /></td>
 						</tr>
 						<tr>
-							<th>5</th>
+							<th data-period="5">5</th>
 							<td><input type="checkbox" name="schedule" value="MO5" checked="checked" /></td>
 							<td><input type="checkbox" name="schedule" value="TU5" checked="checked" /></td>
 							<td><input type="checkbox" name="schedule" value="WE5" checked="checked" /></td>
 							<td><input type="checkbox" name="schedule" value="TH5" checked="checked" /></td>
 							<td><input type="checkbox" name="schedule" value="FR5" checked="checked" /></td>
+							<td><input type="checkbox" name="schedule" value="SA5" checked="checked" /></td>
 						</tr>
 						<tr>
-							<th>6</th>
+							<th data-period="6">6</th>
 							<td><input type="checkbox" name="schedule" value="MO6" checked="checked" /></td>
 							<td><input type="checkbox" name="schedule" value="TU6" checked="checked" /></td>
 							<td><input type="checkbox" name="schedule" value="WE6" checked="checked" /></td>
 							<td><input type="checkbox" name="schedule" value="TH6" checked="checked" /></td>
 							<td><input type="checkbox" name="schedule" value="FR6" checked="checked" /></td>
+							<td><input type="checkbox" name="schedule" value="SA6" checked="checked" /></td>
+						</tr>
+						<tr>
+							<th data-period="7">7</th>
+							<td><input type="checkbox" name="schedule" value="MO7" checked="checked" /></td>
+							<td><input type="checkbox" name="schedule" value="TU7" checked="checked" /></td>
+							<td><input type="checkbox" name="schedule" value="WE7" checked="checked" /></td>
+							<td><input type="checkbox" name="schedule" value="TH7" checked="checked" /></td>
+							<td><input type="checkbox" name="schedule" value="FR7" checked="checked" /></td>
+							<td><input type="checkbox" name="schedule" value="SA7" checked="checked" /></td>
 						</tr>
 					</table>
 				</li>
@@ -128,6 +150,36 @@ $.post('/api/department.php', function(deps){
 		sel.append($('<option>').val(dep.department_id).text(dep.name));
 	});
 });
+$('form.search [name=title]').on('change keyup', function(){
+	if ($(this).data('value') === $(this).val()) {
+		return;
+	}
+	$(this).data('value', $(this).val());
+	$.post('/api/title.php', {title: $(this).val()}, function(titles){
+		var dlist = $('form.search #title-datalist').empty();
+		if (titles == null) {
+			return;
+		}
+		titles.forEach(function(title){
+			dlist.append($('<option>').val(title));
+		});
+	});
+});
+$('form.search [name=teacher]').on('change keyup', function(){
+	if ($(this).data('value') === $(this).val()) {
+		return;
+	}
+	$(this).data('value', $(this).val());
+	$.post('/api/teacher.php', {teacher: $(this).val()}, function(teachers){
+		var dlist = $('form.search #teacher-datalist').empty();
+		if (teachers == null) {
+			return;
+		}
+		teachers.forEach(function(teacher){
+			dlist.append($('<option>').val(teacher));
+		});
+	});
+});
 $('select.place').on('change', function(){
 	$.post('/api/classroom.php',
 			{ department_id: $(this).val() },
@@ -144,6 +196,17 @@ $('select.place').on('change', function(){
 				});
 			});
 }).trigger('change');
+$('form.search table.schedule-table th').on('click', function(){
+	if ($(this).parent().hasClass('schedule-weekdays')) {
+		var checked = !!$(this).data('checked');
+		$('form.search table.schedule-table td:nth-child(' + ($(this).data('day') + 1) + ') > input').prop('checked', checked);
+		$(this).data('checked', !checked);
+	} else {
+		var checked = !!$(this).data('checked');
+		$('form.search table.schedule-table tr:nth-child(' + ($(this).data('period') + 1) + ') input').prop('checked', checked);
+		$(this).data('checked', !checked);
+	}
+});
 $('form.search').on('submit', function(e){
 	e.preventDefault();
 	var data = {};
