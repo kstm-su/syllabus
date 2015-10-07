@@ -7,35 +7,43 @@ require_once(__dir__.'/../lib/util.php');
 
 $db=new DBGuest();
 
-function numAnalyze($WHERE,$input){
+function numAnalyze($ColumnName,$Value){
 	global $db;
-	if(!is_string($input)||!is_string($WHERE)){
-		return "";
+	$ret=[[],[]];
+	if (!is_string($Value)) {
+		return $ret;
 	}
-	$WHERE=$db->escape($WHERE);
-	$input=$db->escape($input);
-	if (is_numeric($input)) {
-		return sprintf("(`%s` = %f) ",$WHERE,$input);
-	}
-	$numarray=explode('..',$input);
+	$Value=$db->escape($Value);
+	$numarray=explode('..',$Value);
 	if (is_numeric($numarray[0])&&is_numeric($numarray[1])) {
-		return sprintf("(`%s` BETWEEN %f AND %f) ",$WHERE,$numarray[0],$numarray[1]);	
+		$ret[0][]="(`$ColumnName` BETWEEN ? AND ?) ";
+		$ret[1][]=$numarray[0];
+		$ret[1][]=$numarray[1];
+		return $ret;
 	}
 	if (is_numeric($numarray[0])) {
-		return sprintf("(`%s` >= %f) ",$WHERE,$numarray[0]);
+		$ret[0][]="(`$ColumnName` >= ?) ";
+		$ret[1][]=$numarray[0];
+		return $ret;
 	}
 	if (is_numeric($numarray[1])) {
-		return sprintf("(`%s` <= %f) ",$WHERE,$numarray[1]);
+		$ret[0][]="(`$ColumnName` >= ?) ";
+		$ret[1][]=$numarray[1];
+		return $ret;
 	}
-	return "";
+	return $ret;
 }
 
-function strAnalyze($WHERE,$input){
+function strAnalyze($ColumnName,$Value){
 	global $db;
-	if(!is_string($input)||!is_string($WHERE)){
-		return "";
+	$ret=[[],[]];
+	if (!is_string($Value)) {
+		return $ret;
 	}
-	$WHERE=$db->escape($WHERE);
-	$input=$db->escape($input);
-	return sprintf("(`%s` LIKE `%%%s%%`) ",$WHERE,$input);
+	$Value=$db->escape($Value);
+	$ret[0][]="(`$ColumnName` LIKE ?) ";
+	$ret[1][]=$Value;
+	return $ret;
 }
+
+
