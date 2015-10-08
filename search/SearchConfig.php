@@ -1,16 +1,16 @@
 <?php
 
-CONST IN    0; //mySQLのIN検索
-CONST NUM   1; //数値検索
-CONST STR   2; //文字列あいまい検索
-CONST MATCH 3; //文字列一致検索
-CONST SCH   4; //スケジュール検索
-CONST FLAG  5; //0or1検索
-CONST SEM   6; //SEMESTER検索
+CONST IN    =0; //mySQLのIN検索
+CONST NUM   =1; //数値検索
+CONST STR   =2; //文字列あいまい検索
+CONST MATCH =3; //文字列一致検索
+CONST SCH   =4; //スケジュール検索
+CONST FLAG  =5; //0or1検索
+CONST SEM   =6; //SEMESTER検索
 
 //[検索オプション,[テーブル名,カラム名,何を取り出すか,何で検索するか]]
-CONST SERCHOPTIONS=[
-	['id'         ,[['list','id','id',IN]]],
+$SEARCHOPTIONS=[
+	['id'         ,[['list','id','id',NUM]]],
 	['year'       ,[['list','year','id',NUM]]],
 	['credit'     ,[['summary','credit','id',NUM]]],
 	['staff'      ,[['staff','name','staff_id',STR],['teacher','staff_id','id',IN]]],
@@ -25,5 +25,5 @@ CONST SERCHOPTIONS=[
 	['style'      ,[['summary','style','id',STR]]],
 	['target'     ,[['summary','target','id',STR]]],
 	['note'       ,[['summary','note','id',STR]]],
-	['schedule'   ,[['schedule',SCH,'id',SCH]]],
+	['schedule'   ,[['schedule',SCH,'id',SCH]]]
 ];
