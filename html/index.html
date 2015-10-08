@@ -132,6 +132,11 @@
 						</tr>
 					</table>
 				</li>
+				<li><label>
+						単位数
+						<input type="text" name="credit" />
+				</label></li>
+				<li><input type="text" name="word" placeholder="全文検索" /></li>
 				<li>
 					<input type="submit" value="検索" />
 					<input type="button" class="show-mylist" value="登録した授業を表示" />
@@ -248,6 +253,8 @@ $('form.search').on('submit', function(e){
 			if (this.checked) {
 				data[this.name].push(this.value);
 			}
+			return;
+		} else if (!this.value) {
 			return;
 		}
 		data[this.name] = this.value;
