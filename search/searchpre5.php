@@ -16,24 +16,28 @@ function numAnalyze($ColumnName,$Value){
 	}
 	$Value=$db->escape($Value);
 	if (is_numeric($Value)) {
-		$ret[0]="(`$ColumnName` = ?) ";
+		$ret[0]='(? = ?) ';
+		$ret[1][]=(string)$db->escape($ColumnName);
 		$ret[1][]=(float)$Value;
 		return $ret;
 	}
 	$numarray=explode('..',$Value);
 	if (is_numeric($numarray[0])&&is_numeric($numarray[1])) {
-		$ret[0]="(`$ColumnName` BETWEEN ? AND ?) ";
+		$ret[0]='(? BETWEEN ? AND ?) ';
+		$ret[1][]=(string)$db->escape($ColumnName);
 		$ret[1][]=(float)$numarray[0];
 		$ret[1][]=(float)$numarray[1];
 		return $ret;
 	}
 	if (is_numeric($numarray[0])) {
-		$ret[0]="(`$ColumnName` >= ?) ";
+		$ret[0]='(? >= ?) ';
+		$ret[1][]=(string)$db->escape($ColumnName);
 		$ret[1][]=(float)$numarray[0];
 		return $ret;
 	}
 	if (is_numeric($numarray[1])) {
-		$ret[0]="(`$ColumnName` <= ?) ";
+		$ret[0]='(? <= ?) ';
+		$ret[1][]=(string)$db->escape($ColumnName);
 		$ret[1][]=(float)$numarray[1];
 		return $ret;
 	}
@@ -47,12 +51,14 @@ function strAnalyze($ColumnName,$Value){
 		return $ret;
 	}
 	$Value=$db->escape($Value);
-	$ret[0]="(`$ColumnName` LIKE ?) ";
+	$ret[0]='(? LIKE ?) ';
+	$ret[1][]=(string)$db->escape($ColumnName);
 	$ret[1][]=(string)$Value;
 	return $ret;
 }
 
 function caseNum($haystack,$needle){
+	global $db;
 	$needle=str_replace(' ',',',$needle);
 	$ret=["",[]];
 	foreach ($needle as $num) {
@@ -64,7 +70,7 @@ function caseNum($haystack,$needle){
 				$y=numAnalyze($haystack[1],$x);
 				if (!is_null($y[0])) {
 					if ($query!=="") {
-						$query.=" AND ";
+						$query.=' AND ';
 					}	
 					$query.=$y[0];
 					$queryarray=array_merge($queryarray,$y[1]);
@@ -72,14 +78,15 @@ function caseNum($haystack,$needle){
 			}
 			if ($query!=="") {
 				if ($ret[0]!=="") {
-					$ret[0].=" ) OR ( ";
+					$ret[0].=' ) OR ( ';
 				}
 				$ret[0].=$query;
 				$ret[1]=array_merge($ret[1],$queryarray);
 			}
 		}
 	}
-	$ret[0]="(SELECT FROM ".$haystack[0]." WHERE (".$ret[0]."))";
+	$ret[0]='(SELECT FROM ? WHERE ('.$ret[0].'))';
+	$ret[1]=array_merge(array((string)$db->escape($haystack[0])),$ret[1]);
 	return $ret;
 }
 
