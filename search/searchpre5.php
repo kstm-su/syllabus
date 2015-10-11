@@ -1,4 +1,4 @@
-<?php
+<?pHp
 header("Content-Type: application/json; charset=UTF-8; Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Origin: *");
 
@@ -10,26 +10,31 @@ $db=new DBGuest();
 
 function numAnalyze($ColumnName,$Value){
 	global $db;
-	$ret=[[],[]];
+	$ret=["",[]];
 	if (!is_string($Value)) {
 		return $ret;
 	}
 	$Value=$db->escape($Value);
+	if (is_numeric($Value)) {
+		$ret[0]="(`$ColumnName` = ?) ";
+		$ret[1][]=(float)$Value;
+		return $ret;
+	}
 	$numarray=explode('..',$Value);
 	if (is_numeric($numarray[0])&&is_numeric($numarray[1])) {
-		$ret[0][]="(`$ColumnName` BETWEEN ? AND ?) ";
-		$ret[1][]=$numarray[0];
-		$ret[1][]=$numarray[1];
+		$ret[0]="(`$ColumnName` BETWEEN ? AND ?) ";
+		$ret[1][]=(float)$numarray[0];
+		$ret[1][]=(float)$numarray[1];
 		return $ret;
 	}
 	if (is_numeric($numarray[0])) {
-		$ret[0][]="(`$ColumnName` >= ?) ";
-		$ret[1][]=$numarray[0];
+		$ret[0]="(`$ColumnName` >= ?) ";
+		$ret[1][]=(float)$numarray[0];
 		return $ret;
 	}
 	if (is_numeric($numarray[1])) {
-		$ret[0][]="(`$ColumnName` <= ?) ";
-		$ret[1][]=$numarray[1];
+		$ret[0]="(`$ColumnName` <= ?) ";
+		$ret[1][]=(float)$numarray[1];
 		return $ret;
 	}
 	return $ret;
@@ -37,18 +42,45 @@ function numAnalyze($ColumnName,$Value){
 
 function strAnalyze($ColumnName,$Value){
 	global $db;
-	$ret=[[],[]];
+	$ret=["",[]];
 	if (!is_string($Value)) {
 		return $ret;
 	}
 	$Value=$db->escape($Value);
-	$ret[0][]="(`$ColumnName` LIKE ?) ";
-	$ret[1][]=$Value;
+	$ret[0]="(`$ColumnName` LIKE ?) ";
+	$ret[1][]=(string)$Value;
 	return $ret;
 }
 
 function caseNum($haystack,$needle){
-	
+	$needle=str_replace(' ',',',$needle);
+	$ret=["",[]];
+	foreach ($needle as $num) {
+		if (is_string($num)) {
+			$numarray=explode(',',$num);
+			$query="";
+			$queryarray=[];
+			foreach ($numarray as $x) {
+				$y=numAnalyze($haystack[1],$x);
+				if (!is_null($y[0])) {
+					if ($query!=="") {
+						$query.=" AND ";
+					}	
+					$query.=$y[0];
+					$queryarray=array_merge($queryarray,$y[1]);
+				}
+			}
+			if ($query!=="") {
+				if ($ret[0]!=="") {
+					$ret[0].=" ) OR ( ";
+				}
+				$ret[0].=$query;
+				$ret[1]=array_merge($ret[1],$queryarray);
+			}
+		}
+	}
+	$ret[0]="(SELECT FROM ".$haystack[0]." WHERE (".$ret[0]."))";
+	return $ret;
 }
 
 $input=array_map(function($req){
@@ -70,7 +102,11 @@ foreach ($SEARCHOPTIONS as $SearchOption) {
 
 		switch ($SearchOption[1][0][3]) {
 		case NUM:{
-			
+			$ret=caseNum($SearchOption[1][0],$input[$SearchOption[0]]);			
+			$query.=$ret[0];
+			$queryvalue+=$ret[1];
+			var_dump($query);
+			var_dump($queryvalue);
 			break;
 		}
 		}
