@@ -29,6 +29,8 @@
 | public | Boolean | 市民開放授業 |
 | ches | Boolean | 県内大学履修科目 |
 | intensive | Boolean | 集中講義 |
+| offset | Integer | 何個目の結果から返すか |
+| count | Integer | 返す結果の個数 |
 
 #### パラメータの型
 - ID : 一致している整数 (例. 1, 100, 1000)
@@ -38,6 +40,7 @@
 - Schedule : 曜日(SU,MO,TU,WE,TH,FR,SA)と時限(数値)
 - Semester : 学期(first:前期, second:後期, fullyear:通年, other:その他)
 - Boolean : 0か1
+- Integer : 整数
 
 #### リクエストの処理
 1. 同じパラメータにスペースが含まれる場合は、スペースで区切ってAND検索
@@ -45,3 +48,10 @@
 3. 違う名前のパラメータはAND検索
 
 ### レスポンス
+| フィールド名 | 型 | 値の説明 |
+|--------------|----|----------|
+| syllabus | [Syllabus] | シラバスデータの配列 |
+| offset | Integer | 開始点 |
+| count | 返す結果の個数 |
+
+#### Syllabus型
