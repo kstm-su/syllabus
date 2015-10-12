@@ -34,7 +34,7 @@
 | public | Boolean | 市民開放授業 |
 | ches | Boolean | 県内大学履修科目 |
 
-# Schedule型
+### Schedule型
 | フィールド名 | データ型 | 値の説明 |
 |--------------|----|----------|
 | day | Integer? | 曜日を表す数値(日=0, 月=1, 火=2, 水=3, 木=4, 金=5, 土=6) |
@@ -44,7 +44,7 @@
 | intensive | Boolean | 集中 |
 | irregular | Boolean | 不定 |
 
-＃Room型
+### Room型
 | フィールド名 | データ型 | 値の説明 |
 |--------------|----|----------|
 | place | String | 開講場所 |
