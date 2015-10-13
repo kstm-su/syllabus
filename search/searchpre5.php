@@ -73,13 +73,13 @@ function caseNum($haystack,$needle){
 			$query="";
 			$queryarray=["No.$id"=>(string)$db->escape($haystack[1])];
 			foreach ($numarray as $x) {
-				$y=numAnalyze((string)$id,$x);
+				$y=numAnalyze($id,$x);
 				if (!is_null($y[0])) {
 					if ($query!=="") {
 						$query.=' AND ';
 					}	
 					$query.=$y[0];
-					$queryarray=array_merge($queryarray,$y[1]);
+					$queryarray+=$y[1];
 				}
 			}
 			if ($query!=="") {
@@ -87,7 +87,7 @@ function caseNum($haystack,$needle){
 					$ret[0].=' ) OR ( ';
 				}
 				$ret[0].=$query;
-				$ret[1]=array_merge($ret[1],$queryarray);
+				$ret[1]=$queryarray;
 			}
 		}
 	}
