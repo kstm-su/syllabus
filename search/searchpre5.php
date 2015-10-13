@@ -87,7 +87,7 @@ function caseNum($haystack,$needle){
 					$ret[0].=' ) OR ( ';
 				}
 				$ret[0].=$query;
-				$ret[1]=$queryarray;
+				$ret[1]+=$queryarray;
 			}
 		}
 	}
