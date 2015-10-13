@@ -32,20 +32,21 @@ class DBGuest extends mysqli {
 		if (count($values) >= 1 && isHashArray($values[0])) {
 			$hash = array_shift($values);
 		}
-		return preg_replace_callback('/\\\\([\\\\?])|(\?\??)|:(\w+)/',
+		return preg_replace_callback('/\\\\([\\\\?])|(\?\??)|(::?)(\w+)/',
 			function($m) use ($values, &$i, $hash) {
 				if ($m[1]) {
 					return $m[1];
 				}
-				if ($hash && $m[3]) {
-					$value = $hash[$m[3]];
+				if ($hash && $m[4]) {
+					$quote = $m[3] === '::' ? '`' : "'";
+					$value = $hash[$m[4]];
 				} else {
+					$quote = $m[2] === '??' ? '`' : "'";
 					$value = $values[$i++];
 				}
 				if (is_array($value) === FALSE) {
 					$value = array($value);
 				}
-				$quote = $m[2] === '??' ? '`' : "'";
 				$list = array();
 				foreach ($value as $v) {
 					if (is_null($v)) {
