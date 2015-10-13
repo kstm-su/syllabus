@@ -8,6 +8,11 @@ require_once(__dir__.'/SearchConfig.php');
 
 $db=new DBGuest();
 
+function generator(){
+	static $count=0;
+	return $count++;
+}
+
 function numAnalyze($ColumnName,$Value){
 	global $db;
 	$ret=["",[]];
@@ -16,29 +21,33 @@ function numAnalyze($ColumnName,$Value){
 	}
 	$Value=$db->escape($Value);
 	if (is_numeric($Value)) {
-		$ret[0]='(? = ?) ';
-		$ret[1][]=(string)$db->escape($ColumnName);
-		$ret[1][]=(float)$Value;
+		$id=[generator(),generator()];
+		$ret[0]="(:No.$id[0] = :No.$id[1])";
+		$ret[1]["No.$id[0]"]=(string)$db->escape($ColumnName);
+		$ret[1]["No.$id[1]"]=(float)$Value;
 		return $ret;
 	}
 	$numarray=explode('..',$Value);
 	if (is_numeric($numarray[0])&&is_numeric($numarray[1])) {
-		$ret[0]='(? BETWEEN ? AND ?) ';
-		$ret[1][]=(string)$db->escape($ColumnName);
-		$ret[1][]=(float)$numarray[0];
-		$ret[1][]=(float)$numarray[1];
+		$id=[generator(),generator(),generator()];
+		$ret[0]="(:No.$id[0] BETWEEN :No.$id[1] AND :No.$id[2])";
+		$ret[1]["No.$id[0]"]=(string)$db->escape($ColumnName);
+		$ret[1]["No.$id[1]"]=(float)$numarray[0];
+		$ret[1]["No.$id[2]"]=(float)$numarray[1];
 		return $ret;
 	}
 	if (is_numeric($numarray[0])) {
-		$ret[0]='(? >= ?) ';
-		$ret[1][]=(string)$db->escape($ColumnName);
-		$ret[1][]=(float)$numarray[0];
+		$id=[generator(),generator()];
+		$ret[0]="(:No.$id[0] >= :No.$id[1])";
+		$ret[1]["No.$id[0]"]=(string)$db->escape($ColumnName);
+		$ret[1]["No.$id[1]"]=(float)$numarray[0];
 		return $ret;
 	}
 	if (is_numeric($numarray[1])) {
-		$ret[0]='(? <= ?) ';
-		$ret[1][]=(string)$db->escape($ColumnName);
-		$ret[1][]=(float)$numarray[1];
+		$id=[generator(),generator()];
+		$ret[0]="(:No.$id[0] <= :No.$id[1])";
+		$ret[1]["No.$id[0]"]=(string)$db->escape($ColumnName);
+		$ret[1]["No.$id[1]"]=(float)$numarray[1];
 		return $ret;
 	}
 	return $ret;
@@ -51,7 +60,7 @@ function strAnalyze($ColumnName,$Value){
 		return $ret;
 	}
 	$Value=$db->escape($Value);
-	$ret[0]='(? LIKE ?) ';
+	$ret[0]='(? LIKE ?)';
 	$ret[1][]=(string)$db->escape($ColumnName);
 	$ret[1][]=(string)$Value;
 	return $ret;
@@ -85,8 +94,9 @@ function caseNum($haystack,$needle){
 			}
 		}
 	}
-	$ret[0]='(SELECT FROM ? WHERE ('.$ret[0].'))';
-	$ret[1]=array_merge(array((string)$db->escape($haystack[0])),$ret[1]);
+	$id=generator();
+	$ret[0]="(SELECT FROM :No.$id WHERE (".$ret[0].'))';
+	$ret[1]=array_merge(array("No.$id"=>(string)$db->escape($haystack[0])),$ret[1]);
 	return $ret;
 }
 
