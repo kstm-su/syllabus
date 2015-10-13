@@ -1,5 +1,9 @@
 <?php
 
+function isHashArray($arr) {
+	return array_values($arr) !== $arr;
+}
+
 class DBGuest extends mysqli {
 
 	public function __construct() {
@@ -24,16 +28,24 @@ class DBGuest extends mysqli {
 	/* プレースホルダに値を挿入 */
 	public function sql($sql, ...$values) {
 		$i = 0;
-		return preg_replace_callback('/\\\\([\\\\?])|(\?\??)/',
-			function($m) use ($values, &$i) {
+		$hash = NULL;
+		if (count($values) >= 1 && isHashArray($values[0])) {
+			$hash = array_shift($values);
+		}
+		return preg_replace_callback('/\\\\([\\\\?])|(\?\??)|:(\w+)/',
+			function($m) use ($values, &$i, $hash) {
 				if ($m[1]) {
 					return $m[1];
 				}
-				$value = $values[$i++];
+				if ($hash && $m[3]) {
+					$value = $hash[$m[3]];
+				} else {
+					$value = $values[$i++];
+				}
 				if (is_array($value) === FALSE) {
 					$value = array($value);
 				}
-				$quote = $m[2] === '?' ? "'" : '`';
+				$quote = $m[2] === '??' ? '`' : "'";
 				$list = array();
 				foreach ($value as $v) {
 					if (is_null($v)) {
@@ -96,7 +108,7 @@ class DBAdmin extends DBGuest {
 	/* 指定したテーブルにデータを挿入 */
 	public function insert($table, $data) {
 		$table = $this->escape($table);
-		$isHash = array_values($data) !== $data;
+		$isHash = isHashArray($data);
 		$col = array();
 		$val = array();
 		foreach ($data as $c => $v) {
@@ -121,7 +133,7 @@ class DBAdmin extends DBGuest {
 	/* insertメソッドに加えて、同じ行が存在する場合は置き換え */
 	public function replace($table, $data) {
 		$table = $this->escape($table);
-		$isHash = array_values($data) !== $data;
+		$isHash = isHashArray($data);
 		$col = array();
 		$val = array();
 		foreach ($data as $c => $v) {
