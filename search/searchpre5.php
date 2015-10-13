@@ -22,28 +22,28 @@ function numAnalyze($Column,$Value){
 	$Value=$db->escape($Value);
 	if (is_numeric($Value)) {
 		$id=generator();
-		$ret[0]="(:No.$Column = :No.$id)";
-		$ret[1]["No.$id"]=(float)$Value;
+		$ret[0]="(::a$Column = :a$id)";
+		$ret[1]["a$id"]=(float)$Value;
 		return $ret;
 	}
 	$numarray=explode('..',$Value);
 	if (is_numeric($numarray[0])&&is_numeric($numarray[1])) {
 		$id=[generator(),generator()];
-		$ret[0]="(:No.$Column BETWEEN :No.$id[0] AND :No.$id[1])";
-		$ret[1]["No.$id[0]"]=(float)$numarray[0];
-		$ret[1]["No.$id[1]"]=(float)$numarray[1];
+		$ret[0]="(::a$Column BETWEEN :a$id[0] AND :a$id[1])";
+		$ret[1]["a$id[0]"]=(float)$numarray[0];
+		$ret[1]["a$id[1]"]=(float)$numarray[1];
 		return $ret;
 	}
 	if (is_numeric($numarray[0])) {
 		$id=generator();
-		$ret[0]="(:No.$Column >= :No.$id)";
-		$ret[1]["No.$id"]=(float)$numarray[0];
+		$ret[0]="(::a$Column >= :a$id)";
+		$ret[1]["a$id"]=(float)$numarray[0];
 		return $ret;
 	}
 	if (is_numeric($numarray[1])) {
 		$id=generator();
-		$ret[0]="(:No.$Column <= :No.$id)";
-		$ret[1]["No.$id"]=(float)$numarray[1];
+		$ret[0]="(::a$Column <= :a$id)";
+		$ret[1]["a$id"]=(float)$numarray[1];
 		return $ret;
 	}
 	return $ret;
@@ -66,7 +66,7 @@ function caseNum($haystack,$needle){
 	global $db;
 	$needle=str_replace(' ',',',$needle);
 	$id=generator();
-	$ret=["",["No.$id"=>(string)$db->escape($haystack[1])]];
+	$ret=["",["a$id"=>(string)$db->escape($haystack[1])]];
 	foreach ($needle as $num) {
 		if (is_string($num)) {
 			$numarray=explode(',',$num);
@@ -92,8 +92,8 @@ function caseNum($haystack,$needle){
 		}
 	}
 	$id=generator();
-	$ret[0]="(SELECT FROM :No.$id WHERE (".$ret[0].'))';
-	$ret[1]+=["No.$id"=>(string)$db->escape($haystack[0])];
+	$ret[0]="(SELECT FROM ::a$id WHERE (".$ret[0].'))';
+	$ret[1]+=["a$id"=>(string)$db->escape($haystack[0])];
 	return $ret;
 }
 
@@ -133,5 +133,6 @@ foreach ($SEARCHOPTIONS as $SearchOption) {
 			$queryvaluearray+=$queryvalue;	
 		}
 		echo "!".$query.PHP_EOL;
+		echo $db->sql($query,$queryvaluearray);
 	}
 }
