@@ -65,13 +65,13 @@ function strAnalyze($ColumnName,$Value){
 function caseNum($haystack,$needle){
 	global $db;
 	$needle=str_replace(' ',',',$needle);
-	$ret=["",[]];
+	$id=generator();
+	$ret=["",["No.$id"=>(string)$db->escape($haystack[1])]];
 	foreach ($needle as $num) {
 		if (is_string($num)) {
 			$numarray=explode(',',$num);
-			$id=generator();
 			$query="";
-			$queryarray=["No.$id"=>(string)$db->escape($haystack[1])];
+			$queryarray=[];
 			foreach ($numarray as $x) {
 				$y=numAnalyze($id,$x);
 				if (!is_null($y[0])) {
