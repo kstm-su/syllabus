@@ -13,7 +13,7 @@ function generator(){
 	return $count++;
 }
 
-function numAnalyze($ColumnName,$Value){
+function numAnalyze($Column,$Value){
 	global $db;
 	$ret=["",[]];
 	if (!is_string($Value)) {
@@ -21,33 +21,29 @@ function numAnalyze($ColumnName,$Value){
 	}
 	$Value=$db->escape($Value);
 	if (is_numeric($Value)) {
-		$id=[generator(),generator()];
-		$ret[0]="(:No.$id[0] = :No.$id[1])";
-		$ret[1]["No.$id[0]"]=(string)$db->escape($ColumnName);
-		$ret[1]["No.$id[1]"]=(float)$Value;
+		$id=generator();
+		$ret[0]="(:No.$Column = :No.$id)";
+		$ret[1]["No.$id"]=(float)$Value;
 		return $ret;
 	}
 	$numarray=explode('..',$Value);
 	if (is_numeric($numarray[0])&&is_numeric($numarray[1])) {
-		$id=[generator(),generator(),generator()];
-		$ret[0]="(:No.$id[0] BETWEEN :No.$id[1] AND :No.$id[2])";
-		$ret[1]["No.$id[0]"]=(string)$db->escape($ColumnName);
-		$ret[1]["No.$id[1]"]=(float)$numarray[0];
-		$ret[1]["No.$id[2]"]=(float)$numarray[1];
+		$id=[generator(),generator()];
+		$ret[0]="(:No.$Column BETWEEN :No.$id[0] AND :No.$id[1])";
+		$ret[1]["No.$id[0]"]=(float)$numarray[0];
+		$ret[1]["No.$id[1]"]=(float)$numarray[1];
 		return $ret;
 	}
 	if (is_numeric($numarray[0])) {
-		$id=[generator(),generator()];
-		$ret[0]="(:No.$id[0] >= :No.$id[1])";
-		$ret[1]["No.$id[0]"]=(string)$db->escape($ColumnName);
-		$ret[1]["No.$id[1]"]=(float)$numarray[0];
+		$id=generator();
+		$ret[0]="(:No.$Column >= :No.$id)";
+		$ret[1]["No.$id"]=(float)$numarray[0];
 		return $ret;
 	}
 	if (is_numeric($numarray[1])) {
-		$id=[generator(),generator()];
-		$ret[0]="(:No.$id[0] <= :No.$id[1])";
-		$ret[1]["No.$id[0]"]=(string)$db->escape($ColumnName);
-		$ret[1]["No.$id[1]"]=(float)$numarray[1];
+		$id=generator();
+		$ret[0]="(:No.$Column <= :No.$id)";
+		$ret[1]["No.$id"]=(float)$numarray[1];
 		return $ret;
 	}
 	return $ret;
@@ -73,10 +69,11 @@ function caseNum($haystack,$needle){
 	foreach ($needle as $num) {
 		if (is_string($num)) {
 			$numarray=explode(',',$num);
+			$id=generator();
 			$query="";
-			$queryarray=[];
+			$queryarray=["No.$id"=>(string)$db->escape($haystack[1])];
 			foreach ($numarray as $x) {
-				$y=numAnalyze($haystack[1],$x);
+				$y=numAnalyze((string)$id,$x);
 				if (!is_null($y[0])) {
 					if ($query!=="") {
 						$query.=' AND ';
@@ -96,7 +93,7 @@ function caseNum($haystack,$needle){
 	}
 	$id=generator();
 	$ret[0]="(SELECT FROM :No.$id WHERE (".$ret[0].'))';
-	$ret[1]=array_merge(array("No.$id"=>(string)$db->escape($haystack[0])),$ret[1]);
+	$ret[1]+=["No.$id"=>(string)$db->escape($haystack[0])];
 	return $ret;
 }
 
