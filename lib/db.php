@@ -32,7 +32,7 @@ class DBGuest extends mysqli {
 		if (count($values) >= 1 && isHashArray($values[0])) {
 			$hash = array_shift($values);
 		}
-		return preg_replace_callback('/\\\\([\\\\?])|(\?\??)|(::?)(\w+)/',
+		return preg_replace_callback('/\\\\([\\\\?:])|(\?\??)|(::?)(\w+)/',
 			function($m) use ($values, &$i, $hash) {
 				if ($m[1]) {
 					return $m[1];
