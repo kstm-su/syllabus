@@ -13,52 +13,52 @@ function generator(){
 	return $count++;
 }
 
-function numAnalyze($Column,$Value){
+function numAnalyze($column,$value){
 	global $db;
 	$ret=["",[]];
-	if (!is_string($Value)) {
+	if (!is_string($value)) {
 		return $ret;
 	}
-	$Value=$db->escape($Value);
-	if (is_numeric($Value)) {
+	$value=$db->escape($value);
+	if (is_numeric($value)) {
 		$id=generator();
-		$ret[0]="(::a$Column = :a$id)";
-		$ret[1]["a$id"]=(float)$Value;
+		$ret[0]="(::a$column = :a$id)";
+		$ret[1]["a$id"]=(float)$value;
 		return $ret;
 	}
-	$numarray=explode('..',$Value);
+	$numarray=explode('..',$value);
 	if (is_numeric($numarray[0])&&is_numeric($numarray[1])) {
 		$id=[generator(),generator()];
-		$ret[0]="(::a$Column BETWEEN :a$id[0] AND :a$id[1])";
+		$ret[0]="(::a$column BETWEEN :a$id[0] AND :a$id[1])";
 		$ret[1]["a$id[0]"]=(float)$numarray[0];
 		$ret[1]["a$id[1]"]=(float)$numarray[1];
 		return $ret;
 	}
 	if (is_numeric($numarray[0])) {
 		$id=generator();
-		$ret[0]="(::a$Column >= :a$id)";
+		$ret[0]="(::a$column >= :a$id)";
 		$ret[1]["a$id"]=(float)$numarray[0];
 		return $ret;
 	}
 	if (is_numeric($numarray[1])) {
 		$id=generator();
-		$ret[0]="(::a$Column <= :a$id)";
+		$ret[0]="(::a$column <= :a$id)";
 		$ret[1]["a$id"]=(float)$numarray[1];
 		return $ret;
 	}
 	return $ret;
 }
 
-function strAnalyze($ColumnName,$Value){
+function strAnalyze($column,$value){
 	global $db;
 	$ret=["",[]];
-	if (!is_string($Value)) {
+	if (!is_string($value)) {
 		return $ret;
 	}
-	$Value=$db->escape($Value);
-	$ret[0]='(? LIKE ?)';
-	$ret[1][]=(string)$db->escape($ColumnName);
-	$ret[1][]=(string)$Value;
+	$value=$db->escape($value);
+	$id=generator();
+	$ret[0]="(::$column LIKE :a$id)";
+	$ret[1]["a$id"]='%'.(string)$value.'%';
 	return $ret;
 }
 
@@ -74,7 +74,7 @@ function caseNum($haystack,$needle){
 			$queryarray=[];
 			foreach ($numarray as $x) {
 				$y=numAnalyze($id,$x);
-				if (!is_null($y[0])) {
+				if ($y[0]!=="") {
 					if ($query!=="") {
 						$query.=' AND ';
 					}	
@@ -91,9 +91,46 @@ function caseNum($haystack,$needle){
 			}
 		}
 	}
-	$id=generator();
-	$ret[0]="(SELECT FROM ::a$id WHERE (".$ret[0].'))';
-	$ret[1]+=["a$id"=>(string)$db->escape($haystack[0])];
+	$id=[generator(),generator()];
+	$ret[0]="(SELECT ::a$id[0] FROM ::a$id[1] WHERE (".$ret[0].'))';
+	$ret[1]+=["a$id[0]"=>(string)$db->escape($haystack[2]),"a$id[1]"=>(string)$db->escape($haystack[0])];
+	return $ret;
+}
+
+function caseStr($haystack,$needle){
+	global $db;
+	$needle=str_replace(' ',',',$needle);
+	$needle=str_replace('%','',$needle);
+	$id=[generator(),generator(),generator()];
+	$ret=["",[
+		(string)$db->escape($haystack[0]).$id[0]=>(string)$db->escape($haystack[0]),
+			(string)$db->escape($haystack[1]).$id[1]=>(string)$db->escape($haystack[1]),
+			(string)$db->escape($haystack[2]).$id[2]=>(string)$db->escape($haystack[2])
+		]];
+	foreach ($needle as $str) {
+		$strarray=explode(',',$str);
+		$query="";
+		$queryarray=[];
+		foreach ($strarray as $x) {
+			$y=strAnalyze((string)$db->escape($haystack[1]).$id[1],$x);
+			if ($y[0]!=="") {
+				if ($query==="") {
+					$query='(SELECT DISTINCT ::'.(string)$db->escape($haystack[2]).$id[2].' FROM ::'.(string)$db->escape($haystack[0]).$id[0].' WHERE '.$y[0].')';
+				}else{
+					$query='(SELECT DISTINCT ::'.(string)$db->escape($haystack[2]).$id[2].' FROM ::'.(string)$db->escape($haystack[0]).$id[0].' WHERE ::'.(string)$db->escape($haystack[2]).$id[2].' IN '.$query.' AND '.$y[0].')';
+				}
+				$queryarray+=$y[1];
+			}
+		}
+		if ($query!=="") {
+			if ($ret[0]!=="") {
+				$ret[0].=' ) UNION ( ';	
+			}
+			$ret[0].=$query;
+			$ret[1]+=$queryarray;
+		}
+	}
+	$ret[0]='(SELECT DISTINCT ::'.(string)$db->escape($haystack[2]).$id[2].' FROM ::'.(string)$db->escape($haystack[0]).$id[0].' WHERE ::'.(string)$db->escape($haystack[2]).$id[2].' IN ('.$ret[0].'))';
 	return $ret;
 }
 
@@ -123,6 +160,15 @@ foreach ($SEARCHOPTIONS as $SearchOption) {
 			var_dump($queryvalue);
 			break;
 		}
+		case STR:{
+			$ret=caseStr($SearchOption[1][0],$input[$SearchOption[0]]);			
+			$query.=$ret[0];
+			$queryvalue+=$ret[1];
+			var_dump($query);
+			var_dump($queryvalue);
+			break;
+		}
+
 		}
 
 		if (sizeof($SearchOption[1])===2&&$query!==""&&$SearchOption[1][1][3]===IN) {
