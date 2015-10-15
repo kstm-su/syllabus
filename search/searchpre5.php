@@ -175,10 +175,20 @@ foreach ($SEARCHOPTIONS as $SearchOption) {
 			$query='(SELECT '.$SearchOption[1][1][2].' FROM '.$SearchOption[1][1][0].' WHERE '.$SearchOption[1][1][1]." in ($query))";
 		}
 		if ($query!=="") {
-			$queryarray[]=$query;
-			$queryvaluearray+=$queryvalue;	
+			if (sizeof($queryarray)!==0) {
+				$id=[generator(),generator()];
+				$queryarray=["SELECT `json` FROM `response` WHERE `id` IN ({::sql$id[0]}) AND `id` IN ({::sql$id[1]})",["sql$id[0]"=>[$query,$queryvaluearray],"sql$id[1]"=>[$queryarray[0],$queryarray[1]]]];
+			}else{
+				$id=[generator()];
+				$queryarray=["SELECT `json` FROM `response` WHERE `id` IN ({::sql$id})",[$query,$queryarray]];
+			}
+			//$queryarray[]=$query;
+			//$queryvaluearray+=$queryvalue;	
 		}
 		echo "!".$query.PHP_EOL;
 		echo $db->sql($query,$queryvaluearray);
 	}
 }
+var_dump($queryarray);
+var_dump($queryvaluearray);
+echo $db->sql($query,$queryvaluearray);
