@@ -172,23 +172,28 @@ foreach ($SEARCHOPTIONS as $SearchOption) {
 		}
 
 		if (sizeof($SearchOption[1])===2&&$query!==""&&$SearchOption[1][1][3]===IN) {
-			$query='(SELECT '.$SearchOption[1][1][2].' FROM '.$SearchOption[1][1][0].' WHERE '.$SearchOption[1][1][1]." in ($query))";
+			$id=[generator(),generator(),generator()];
+			$query='(SELECT DISTINCT ::'.$SearchOption[1][1][2].$id[2].' FROM ::'.$SearchOption[1][1][0].$id[0].' WHERE ::'.$SearchOption[1][1][1].$id[1]." in ($query))";
+			$queryvalue[$SearchOption[1][1][0].$id[0]]=$SearchOption[1][1][0];
+			$queryvalue[$SearchOption[1][1][1].$id[1]]=$SearchOption[1][1][1];
+			$queryvalue[$SearchOption[1][1][2].$id[2]]=$SearchOption[1][1][2];
 		}
 		if ($query!=="") {
 			if (sizeof($queryarray)!==0) {
-				$id=[generator(),generator()];
-				$queryarray=["SELECT `json` FROM `response` WHERE `id` IN ({::sql$id[0]}) AND `id` IN ({::sql$id[1]})",["sql$id[0]"=>[$query,$queryvaluearray],"sql$id[1]"=>[$queryarray[0],$queryarray[1]]]];
+				$id=[generator(),generator(),generator(),generator()];
+				$memo=["id$id[2]"=>$db->escape('id')];
+				$memo+=["list$id[3]"=>$db->escape('list')];
+				$queryarray=["SELECT DISTINCT ::id$id[2] FROM ::$list$id[3] WHERE ::id$id[2] IN ({:sql$id[0]}) AND ::id$id[2] IN ({:sql$id[1]})",["sql$id[0]"=>[$query,$queryvalue],"sql$id[1]"=>[$queryarray[0],$queryarray[1]]]+$memo];
 			}else{
-				$id=[generator()];
-				$queryarray=["SELECT `json` FROM `response` WHERE `id` IN ({::sql$id})",[$query,$queryarray]];
+				$id=generator();
+				$queryarray=[$query,$queryvalue];
 			}
 			//$queryarray[]=$query;
-			//$queryvaluearray+=$queryvalue;	
+			$queryvaluearray+=$queryvalue;	
 		}
 		echo "!".$query.PHP_EOL;
 		echo $db->sql($query,$queryvaluearray);
 	}
 }
 var_dump($queryarray);
-var_dump($queryvaluearray);
-echo $db->sql($query,$queryvaluearray);
+echo $db->sql($queryarray[0],$queryarray[1]);
