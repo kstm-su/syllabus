@@ -28,20 +28,21 @@ class DBGuest extends mysqli {
 	/* プレースホルダに値を挿入 */
 	public function sql($sql, ...$values) {
 		$i = 0;
-		$hash = NULL;
-		if (count($values) >= 1 && isHashArray($values[0])) {
-			$hash = array_shift($values);
-		}
-		return preg_replace_callback('/\\\\([\\\\?])|(\?\??)|(::?)(\w+)/',
-			function($m) use ($values, &$i, $hash) {
+		return preg_replace_callback('/\\\\([\\\\?:])|(\{?)(?:(\?\??)|(::?)(\w+))(\}?)/',
+			function($m) use ($values, &$i) {
 				if ($m[1]) {
 					return $m[1];
 				}
-				if ($hash && $m[4]) {
-					$quote = $m[3] === '::' ? '`' : "'";
-					$value = $hash[$m[4]];
+				if (isset($m[5]) && $m[5]) {
+					$quote = $m[4] === '::' ? '`' : "'";
+					foreach ($values as $v) {
+						if (is_array($v) && isset($v[$m[5]])) {
+							$value = $v[$m[5]];
+							break;
+						}
+					}
 				} else {
-					$quote = $m[2] === '??' ? '`' : "'";
+					$quote = $m[3] === '??' ? '`' : "'";
 					$value = $values[$i++];
 				}
 				if (is_array($value) === FALSE) {
@@ -53,7 +54,16 @@ class DBGuest extends mysqli {
 						$list[] = NULL;
 						continue;
 					}
-					$list[] = $quote . $this->escape((string)$v) . $quote;
+					if ($m[2] === '{' && isset($m[6])) {
+						if (is_array($v)) {
+							$list[] = $this->sql(...$v);
+						} else {
+							$list[] = $this->sql(...$value);
+							break;
+						}
+					} else {
+						$list[] = $quote . $this->escape((string)$v) . $quote;
+					}
 				}
 				return implode(', ', $list);
 			}, $sql);
