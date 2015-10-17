@@ -22,7 +22,7 @@ class DBGuest extends mysqli {
 	/* 指定したテーブルからすべての行をSELECT */
 	public function selectAll($table) {
 		$table = $this->escape($table);
-		return $this->query("SELECT * FROM `$table`");
+		return $this->query('SELECT * FROM ??', $table);
 	}
 
 	/* プレースホルダに値を挿入 */
@@ -130,14 +130,13 @@ class DBAdmin extends DBGuest {
 			}
 			$val[] = "'" . $this->escape((string)$v) . "'";
 		}
-		$cols = implode(', ', $col);
-		$vals = implode(', ', $val);
 		if ($isHash) {
-			$sql = "INSERT INTO `$table` ($cols) VALUES ($vals)";
+			$res = $this->query('INSERT INTO ?? (?) VALUES (?)',
+				$table, $col, $val);
 		} else {
-			$sql = "INSERT INTO `$table` VALUES ($vals)";
+			$res = $this->query('INSERT INTO ?? VALUES (?)',
+				$table, $val);
 		}
-		$res = $this->query($sql);
 		return $res ? $this->insert_id : FALSE;
 	}
 
@@ -155,21 +154,20 @@ class DBAdmin extends DBGuest {
 			}
 			$val[] = "'" . $this->escape((string)$v) . "'";
 		}
-		$cols = implode(', ', $col);
-		$vals = implode(', ', $val);
 		if ($isHash) {
-			$sql = "REPLACE INTO `$table` ($cols) VALUES ($vals)";
+			$res = $this->query('REPLACE INTO ?? (?) VALUES (?)',
+				$table, $col, $val);
 		} else {
-			$sql = "REPLACE INTO `$table` VALUES ($vals)";
+			$res = $this->query('REPLACE INTO ?? VALUES (?)',
+				$table, $val);
 		}
-		$res = $this->query($sql);
 		return $res ? $this->insert_id : FALSE;
 	}
 
 	/* テーブルを空にする */
 	public function truncate($table) {
 		$table = $this->escape($table);
-		return $this->query("TRUNCATE `$table`");
+		return $this->query('TRUNCATE ??', $table);
 	}
 
 }
