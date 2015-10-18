@@ -14,9 +14,7 @@ class DBGuest extends mysqli {
 
 	/* 文字列をエスケープして返す */
 	public function escape($str) {
-		$res = $this->real_escape_string($str);
-		$res = str_replace('\\', '\\\\', $res);
-		return str_replace('?', '\\?', $res);
+		return $this->real_escape_string($str);
 	}
 
 	/* 指定したテーブルからすべての行をSELECT */
@@ -123,15 +121,15 @@ class DBAdmin extends DBGuest {
 		$col = array();
 		$val = array();
 		foreach ($data as $c => $v) {
-			$col[] = "`" . $this->escape((string)$c) . "`";
+			$col[] = $c;
 			if (is_null($v)) {
 				$val[] = 'NULL';
 				continue;
 			}
-			$val[] = "'" . $this->escape((string)$v) . "'";
+			$val[] = $v;
 		}
 		if ($isHash) {
-			$res = $this->query('INSERT INTO ?? (?) VALUES (?)',
+			$res = $this->query('INSERT INTO ?? (??) VALUES (?)',
 				$table, $col, $val);
 		} else {
 			$res = $this->query('INSERT INTO ?? VALUES (?)',
@@ -147,15 +145,15 @@ class DBAdmin extends DBGuest {
 		$col = array();
 		$val = array();
 		foreach ($data as $c => $v) {
-			$col[] = "`" . $this->escape((string)$c) . "`";
+			$col[] = $c;
 			if (is_null($v)) {
 				$val[] = 'NULL';
 				continue;
 			}
-			$val[] = "'" . $this->escape((string)$v) . "'";
+			$val[] = $v;
 		}
 		if ($isHash) {
-			$res = $this->query('REPLACE INTO ?? (?) VALUES (?)',
+			$res = $this->query('REPLACE INTO ?? (??) VALUES (?)',
 				$table, $col, $val);
 		} else {
 			$res = $this->query('REPLACE INTO ?? VALUES (?)',
