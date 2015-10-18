@@ -141,8 +141,8 @@ $input=array_map(function($req){
 	return array(kana($req));
 },$_REQUEST);
 
-$queryarray=[];
-$queryvaluearray=[];
+$idg=generator();
+$queryvaluearray=["",["id$idg"=>'id']];
 
 foreach ($SEARCHOPTIONS as $SearchOption) {
 	echo $SearchOption[0].PHP_EOL;
@@ -179,21 +179,18 @@ foreach ($SEARCHOPTIONS as $SearchOption) {
 			$queryvalue[$SearchOption[1][1][2].$id[2]]=$SearchOption[1][1][2];
 		}
 		if ($query!=="") {
-			if (sizeof($queryarray)!==0) {
-				$id=[generator(),generator(),generator(),generator()];
-				$memo=["id$id[2]"=>$db->escape('id')];
-				$memo+=["list$id[3]"=>$db->escape('list')];
-				$queryarray=["SELECT DISTINCT ::id$id[2] FROM ::$list$id[3] WHERE ::id$id[2] IN ({:sql$id[0]}) AND ::id$id[2] IN ({:sql$id[1]})",["sql$id[0]"=>[$query,$queryvalue],"sql$id[1]"=>[$queryarray[0],$queryarray[1]]]+$memo];
+			$id=generator();
+			if ($queryvaluearray[0]!=="") {
+				$queryvaluearray[0].=' JOIN ('.$query.") as U$id using(::id$idg) ";
 			}else{
-				$id=generator();
-				$queryarray=[$query,$queryvalue];
+				$queryvaluearray[0].='('.$query.") as U$id ";
 			}
-			//$queryarray[]=$query;
-			$queryvaluearray+=$queryvalue;	
+			$queryvaluearray[1]+=$queryvalue;
 		}
 		echo "!".$query.PHP_EOL;
 		echo $db->sql($query,$queryvaluearray);
 	}
 }
-var_dump($queryarray);
-echo $db->sql($queryarray[0],$queryarray[1]);
+$queryvaluearray[0]="SELECT ::id$idg FROM ($queryvaluearray[0])";
+var_dump($queryvaluearray);
+echo $db->sql($queryvaluearray[0],$queryvaluearray[1]);
