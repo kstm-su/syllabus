@@ -115,9 +115,9 @@ function caseStr($haystack,$needle){
 			$y=strAnalyze((string)$db->escape($haystack[1]).$id[1],$x);
 			if ($y[0]!=="") {
 				if ($query==="") {
-					$query='(SELECT DISTINCT ::'.(string)$db->escape($haystack[2]).$id[2].' FROM ::'.(string)$db->escape($haystack[0]).$id[0].' WHERE '.$y[0].')';
+					$query='(SELECT DISTINCT ::'.(string)$db->escape($haystack[2]).$id[2].' FROM ::'.(string)$db->escape($haystack[0]).$id[0].' WHERE '.$y[0].')as D'.generator().' ';
 				}else{
-					$query='(SELECT DISTINCT ::'.(string)$db->escape($haystack[2]).$id[2].' FROM ::'.(string)$db->escape($haystack[0]).$id[0].' WHERE ::'.(string)$db->escape($haystack[2]).$id[2].' IN '.$query.' AND '.$y[0].')';
+					$query.=' JOIN (SELECT DISTINCT ::'.(string)$db->escape($haystack[2]).$id[2].' FROM ::'.(string)$db->escape($haystack[0]).$id[0].' WHERE '.$y[0].')as D'.generator().' using(::'.(string)$db->escape($haystack[2]).$id[2].')';
 				}
 				$queryarray+=$y[1];
 			}
@@ -130,7 +130,7 @@ function caseStr($haystack,$needle){
 			$ret[1]+=$queryarray;
 		}
 	}
-	$ret[0]='(SELECT DISTINCT ::'.(string)$db->escape($haystack[2]).$id[2].' FROM ::'.(string)$db->escape($haystack[0]).$id[0].' WHERE ::'.(string)$db->escape($haystack[2]).$id[2].' IN ('.$ret[0].'))';
+	$ret[0]='(SELECT DISTINCT ::'.(string)$db->escape($haystack[2]).$id[2].' FROM ('.$ret[0].'))';
 	return $ret;
 }
 
@@ -191,6 +191,8 @@ foreach ($SEARCHOPTIONS as $SearchOption) {
 		echo $db->sql($query,$queryvaluearray);
 	}
 }
-$queryvaluearray[0]="SELECT ::id$idg FROM ($queryvaluearray[0])";
+if ($queryvaluearray[0]!=="") {
+	$queryvaluearray[0]="SELECT ::id$idg FROM ($queryvaluearray[0])";
+}
 var_dump($queryvaluearray);
 echo $db->sql($queryvaluearray[0],$queryvaluearray[1]);
