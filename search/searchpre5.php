@@ -99,6 +99,11 @@ function caseNum($haystack,$needle){
 
 function caseStr($haystack,$needle){
 	global $db;
+	global $idg;
+	list($haystack,$incase)=$haystack;
+	if (is_null($incase)) {
+		echo "!?!?!?!";	
+	}
 	$needle=str_replace(' ',',',$needle);
 	$needle=str_replace('%','',$needle);
 	$id=[generator(),generator(),generator()];
@@ -114,10 +119,15 @@ function caseStr($haystack,$needle){
 		foreach ($strarray as $x) {
 			$y=strAnalyze((string)$db->escape($haystack[1]).$id[1],$x);
 			if ($y[0]!=="") {
+				$query_memo='(SELECT DISTINCT ::'.(string)$db->escape($haystack[2]).$id[2].' FROM ::'.(string)$db->escape($haystack[0]).$id[0].' WHERE '.$y[0].')';
+				if (!is_null($incase)) {
+					list($query_memo,$y_memo)=caseIn($incase,$query_memo);
+					$y[1]+=$y_memo;
+				}
 				if ($query==="") {
-					$query='(SELECT DISTINCT ::'.(string)$db->escape($haystack[2]).$id[2].' FROM ::'.(string)$db->escape($haystack[0]).$id[0].' WHERE '.$y[0].')as D'.generator().' ';
+					$query=$query_memo.' AS D'.generator();
 				}else{
-					$query.=' JOIN (SELECT DISTINCT ::'.(string)$db->escape($haystack[2]).$id[2].' FROM ::'.(string)$db->escape($haystack[0]).$id[0].' WHERE '.$y[0].')as D'.generator().' using(::'.(string)$db->escape($haystack[2]).$id[2].')';
+					$query.=' JOIN '.$query_memo.' AS D'.generator().' using(::id'.$idg.') ';
 				}
 				$queryarray+=$y[1];
 			}
@@ -130,8 +140,18 @@ function caseStr($haystack,$needle){
 			$ret[1]+=$queryarray;
 		}
 	}
-	$ret[0]='(SELECT DISTINCT ::'.(string)$db->escape($haystack[2]).$id[2].' FROM ('.$ret[0].'))';
+	$ret[0]='(SELECT DISTINCT ::id'.$idg.' FROM ('.$ret[0].'))';
 	return $ret;
+}
+
+function caseIn($haystack,$str){
+	global $db;
+	$id=[generator(),generator(),generator()];
+	return ['(SELECT DISTINCT ::IN'.$id[2].' FROM ::IN'.$id[0].' WHERE ::IN'.$id[1].' IN('.$str.'))',[
+		"IN$id[0]"=>(string)$db->escape($haystack[0]),
+		"IN$id[1]"=>(string)$db->escape($haystack[1]),
+		"IN$id[2]"=>(string)$db->escape($haystack[2])
+	]];
 }
 
 $input=array_map(function($req){
@@ -161,7 +181,7 @@ foreach ($SEARCHOPTIONS as $SearchOption) {
 			break;
 		}
 		case STR:{
-			$ret=caseStr($SearchOption[1][0],$input[$SearchOption[0]]);			
+			$ret=caseStr($SearchOption[1],$input[$SearchOption[0]]);			
 			$query.=$ret[0];
 			$queryvalue+=$ret[1];
 			var_dump($query);
@@ -171,19 +191,12 @@ foreach ($SEARCHOPTIONS as $SearchOption) {
 
 		}
 
-		if (sizeof($SearchOption[1])===2&&$query!==""&&$SearchOption[1][1][3]===IN) {
-			$id=[generator(),generator(),generator()];
-			$query='(SELECT DISTINCT ::'.$SearchOption[1][1][2].$id[2].' FROM ::'.$SearchOption[1][1][0].$id[0].' WHERE ::'.$SearchOption[1][1][1].$id[1]." in ($query))";
-			$queryvalue[$SearchOption[1][1][0].$id[0]]=$SearchOption[1][1][0];
-			$queryvalue[$SearchOption[1][1][1].$id[1]]=$SearchOption[1][1][1];
-			$queryvalue[$SearchOption[1][1][2].$id[2]]=$SearchOption[1][1][2];
-		}
 		if ($query!=="") {
 			$id=generator();
 			if ($queryvaluearray[0]!=="") {
 				$queryvaluearray[0].=' JOIN ('.$query.") as U$id using(::id$idg) ";
 			}else{
-				$queryvaluearray[0].='('.$query.") as U$id ";
+				$queryvaluearray[0]='('.$query.") as U$id ";
 			}
 			$queryvaluearray[1]+=$queryvalue;
 		}
