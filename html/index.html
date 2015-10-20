@@ -164,7 +164,7 @@
 		<a href="javascript:void(0)" class="quick-regist">クイック履修登録用ブックマークレット</a>
 		<script type="text/javascript">
 $('form.search [name=year]').val(new Date().getFullYear());
-$.post('/api/department.php', function(deps){
+$.post('../api/department.php', function(deps){
 	var sel = $('select.department');
 	deps.forEach(function(dep){
 		sel.append($('<option>').val(dep.department_id).text(dep.name));
@@ -175,7 +175,7 @@ $('form.search [name=code]').on('change keyup', function(){
 		return;
 	}
 	$(this).data('value', $(this).val());
-	$.post('/api/completion.php', {code: $(this).val()}, function(codes){
+	$.post('../api/completion.php', {code: $(this).val()}, function(codes){
 		var dlist = $('form.search #code-datalist').empty();
 		if (codes == null) {
 			return;
@@ -190,7 +190,7 @@ $('form.search [name=title]').on('change keyup', function(){
 		return;
 	}
 	$(this).data('value', $(this).val());
-	$.post('/api/completion.php', {title: $(this).val()}, function(titles){
+	$.post('../api/completion.php', {title: $(this).val()}, function(titles){
 		var dlist = $('form.search #title-datalist').empty();
 		if (titles == null) {
 			return;
@@ -205,7 +205,7 @@ $('form.search [name=teacher]').on('change keyup', function(){
 		return;
 	}
 	$(this).data('value', $(this).val());
-	$.post('/api/completion.php', {teacher: $(this).val()}, function(teachers){
+	$.post('../api/completion.php', {teacher: $(this).val()}, function(teachers){
 		var dlist = $('form.search #teacher-datalist').empty();
 		if (teachers == null) {
 			return;
@@ -216,7 +216,7 @@ $('form.search [name=teacher]').on('change keyup', function(){
 	});
 });
 $('select.place').on('change', function(){
-	$.post('/api/classroom.php',
+	$.post('../api/classroom.php',
 			{ department_id: $(this).val() },
 			function(rooms){
 				var sel = $('select.classroom');
@@ -259,7 +259,7 @@ $('form.search').on('submit', function(e){
 		}
 		data[this.name] = this.value;
 	});
-	$.post('/api/search.php', data, function(res){
+	$.post('../api/search.php', data, function(res){
 		$('table.result').trigger('update', [res, data, true]);
 	});
 });
@@ -271,14 +271,14 @@ $('form.search .show-mylist').on('click', function(){
 			data.id.push(id);
 		}
 	});
-	$.post('/api/search.php', data, function(res){
+	$.post('../api/search.php', data, function(res){
 		$('table.result').trigger('update', [res, data, true]);
 	});
 });
 $('button.show-next').on('click', function(){
 	var formdata = $(this).data('formdata');
 	formdata.page = $(this).data('begin');
-	$.post('/api/search.php', formdata, function(res){
+	$.post('../api/search.php', formdata, function(res){
 		$('table.result').trigger('update', [res, formdata, false]);
 	});
 });
