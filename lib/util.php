@@ -41,7 +41,7 @@ function kana($str) {
 
 /* N-gram変換 */
 function ngram($n, $str) {
-	for ($i = 0; $i < strlen($str) - $n + 1; $i++) {
+	for ($i = 0; $i < mb_strlen($str) - $n + 1; $i++) {
 		$res[] = mb_substr($str, $i, $n);
 	}
 	return $res;
