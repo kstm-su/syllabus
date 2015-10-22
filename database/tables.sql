@@ -57,7 +57,8 @@ CREATE TABLE IF NOT EXISTS `textdata` (
 	`key` varchar(127) NOT NULL COMMENT '項目名',
 	`value` text COMMENT '値',
 	PRIMARY KEY (`textdata_id`),
-	UNIQUE `uniq` (`id`, `key`)
+	UNIQUE `uniq` (`id`, `key`),
+	FULLTEXT `word` (`value`) WITH PARSER `ngram`
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COMMENT = 'テキストデータから抜き出した情報を入れるテーブル';
 
 CREATE TABLE IF NOT EXISTS `summary` (
