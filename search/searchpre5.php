@@ -101,9 +101,6 @@ function caseStr($haystack,$needle){
 	global $db;
 	global $idg;
 	list($haystack,$incase)=$haystack;
-	if (is_null($incase)) {
-		echo "!?!?!?!";	
-	}
 	$needle=str_replace(' ',',',$needle);
 	$needle=str_replace('%','',$needle);
 	$id=[generator(),generator(),generator()];
@@ -149,9 +146,69 @@ function caseIn($haystack,$str){
 	$id=[generator(),generator(),generator()];
 	return ['(SELECT DISTINCT ::IN'.$id[2].' FROM ::IN'.$id[0].' WHERE ::IN'.$id[1].' IN('.$str.'))',[
 		"IN$id[0]"=>(string)$db->escape($haystack[0]),
-		"IN$id[1]"=>(string)$db->escape($haystack[1]),
-		"IN$id[2]"=>(string)$db->escape($haystack[2])
-	]];
+			"IN$id[1]"=>(string)$db->escape($haystack[1]),
+			"IN$id[2]"=>(string)$db->escape($haystack[2])
+		]];
+}
+
+function caseSem($haystack,$needle){
+	global $db;
+	global $idg;
+	list($haystack,$incase)=$haystack;
+	$needle=str_replace(' ',',',$needle);
+	$id=[generator(),generator(),generator(),generator(),generator(),generator()];
+	$ret=["",[
+		(string)$db->escape($haystack[0]).$id[0]=>(string)$db->escape($haystack[0]),
+			(string)$db->escape($haystack[1]).$id[1]=>(string)$db->escape($haystack[1]),
+			(string)$db->escape($haystack[2]).$id[2]=>(string)$db->escape($haystack[2]),
+			(string)$db->escape($incase[0]).$id[3]=>(string)$db->escape($incase[0]),
+			(string)$db->escape($incase[1]).$id[4]=>(string)$db->escape($incase[1]),
+			(string)$db->escape($incase[2]).$id[5]=>(string)$db->escape($incase[2])
+		]];
+	foreach ($needle as $str) {
+		$strarray=explode(',',$str);
+		$query="";
+		$queryarray=[];
+		foreach ($strarray as $x) {
+			switch ($x) {
+			case 'first':
+				if ($query!=="") {
+					$query.=' AND ';	
+				}
+				$query.='(first=1)';
+				break;
+			case 'second':
+				if ($query!=="") {
+					$query.=' AND ';	
+				}
+				$query.='(second=1)';
+				break;
+			case 'fullyear':
+				if ($query!=="") {
+					$query.=' AND ';	
+				}
+				$query.='(second=1) AND (second=1)';
+				break;
+			case 'other':
+				if ($query!=="") {
+					$query.=' AND ';	
+				}
+				$query.='(intensive=1)';
+				break;
+			}
+		}
+		if ($query!=="") {
+			if ($ret[0]!=="") {
+				$ret[0].=' ) OR ( ';	
+			}
+			$ret[0].=$query;
+		}
+	}
+	if ($ret[0]!=="") {
+		$ret[0]='SELECT ::'.(string)$db->escape($incase[2]).$id[5].' FROM ::'.(string)$db->escape($incase[0]).$id[3].' WHERE ::'.(string)$db->escape($incase[1]).$id[4].' IN (SELECT ::'.(string)$db->escape($haystack[2]).$id[2].' FROM ::'. (string)$db->escape($haystack[0]).$id[0].' WHERE ('.$ret[0].'))';
+	}
+	var_dump($needle);
+	return $ret;
 }
 
 $input=array_map(function($req){
@@ -179,13 +236,19 @@ foreach ($SEARCHOPTIONS as $SearchOption) {
 			var_dump($query);
 			var_dump($queryvalue);
 			break;
-		}
-		case STR:{
-			$ret=caseStr($SearchOption[1],$input[$SearchOption[0]]);			
+}
+case STR:{
+	$ret=caseStr($SearchOption[1],$input[$SearchOption[0]]);			
+	$query.=$ret[0];
+	$queryvalue+=$ret[1];
+	var_dump($query);
+	var_dump($queryvalue);
+	break;
+}
+case SEM:{
+			$ret=caseSem($SearchOption[1],$input[$SearchOption[0]]);			
 			$query.=$ret[0];
 			$queryvalue+=$ret[1];
-			var_dump($query);
-			var_dump($queryvalue);
 			break;
 		}
 
