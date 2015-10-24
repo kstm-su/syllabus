@@ -2,7 +2,12 @@
 cd `dirname "$0"`
 
 read -sp 'Enter MySQL root password: ' PASSWORD
-echo "\n"
+echo ''
+
+if [ ! -e ../lib/config.php ]; then
+	cp ../lib/config.sample.php ../lib/config.php
+fi
+
 ADMIN_USER=`php -r "require_once('../lib/config.php');echo ADMIN_USER;"`
 ADMIN_PASSWD=`php -r "require_once('../lib/config.php');echo ADMIN_PASSWD;"`
 GUEST_USER=`php -r "require_once('../lib/config.php');echo GUEST_USER;"`
