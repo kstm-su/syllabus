@@ -1,4 +1,4 @@
-<?pHp
+<?php
 header("Content-Type: application/json; charset=UTF-8; Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Origin: *");
 
@@ -59,6 +59,55 @@ function strAnalyze($column,$value){
 	$id=generator();
 	$ret[0]="(::$column LIKE :a$id)";
 	$ret[1]["a$id"]='%'.(string)$value.'%';
+	return $ret;
+}
+
+function schAnalyze($value){
+	global $db;
+	$ret=["",[]];
+	if (!is_string($value)) {
+		return $ret;
+	}
+	$value=$db->escape(mb_strtolower($value));
+	if ($value==='null') {
+		$id=[generator(),generator()];
+		$ret[0]="(::a$id[0] IS NULL AND ::a$id[1] IS NULL)";
+		$ret[1]=[
+			"a$id[0]"=>'day',
+			"a$id[1]"=>'period'
+		];
+		return $ret;
+	}
+	if (is_numeric($value)&&is_integer($value)) {
+		$id=[generator(),generator()];
+		$ret[0]="(::a$id[0] = :q$id[1])";
+		$ret[1]=[
+			"a$id[0]"=>'period',
+			"a$id[1]"=>(int)$value
+		];
+		return $ret;
+	}
+	$dow=['su','mo','tu','we','th','fr','sa'];
+	foreach ($dow as $x =>$y) {
+		if (substr($value,0,2)===$y) {
+			$id=[generator(),generator()];
+			$ret[0]="(::a$id[0] = :a$id[1])";
+			$ret[1]=[
+				"a$id[0]"=>'day',
+				"a$id[1]"=>(int)$db->escape($x)
+			];
+			break;
+		}
+	}
+	if ($ret[0]===""||strlen($value)<=2||!is_numeric(substr($value,2,1))) {
+		return $ret;
+	}
+	$id=[generator(),generator()];
+	$ret[0]="($ret[0] AND (::a$id[0] = :a$id[1]))";
+	$ret[1]+=[
+		"a$id[0]"=>'period',
+		"a$id[1]"=>(int)$db->escape(substr($value,2,1))
+	];
 	return $ret;
 }
 
@@ -137,7 +186,9 @@ function caseStr($haystack,$needle){
 			$ret[1]+=$queryarray;
 		}
 	}
-	$ret[0]='(SELECT DISTINCT ::id'.$idg.' FROM ('.$ret[0].'))';
+	if($ret[0]!==""){
+		$ret[0]='(SELECT DISTINCT ::id'.$idg.' FROM ('.$ret[0].'))';
+	}
 	return $ret;
 }
 
@@ -211,6 +262,48 @@ function caseSem($haystack,$needle){
 	return $ret;
 }
 
+function caseSch($haystack,$needle){
+	global $db;
+	global $idg;
+	$haystack=$haystack[0];
+	$needle=str_replace(' ',',',$needle);
+
+	$id=[generator(),generator(),generator()];
+	$ret=["",[
+		(string)$db->escape($haystack[0]).$id[0]=>(string)$db->escape($haystack[0]),
+			(string)$db->escape($haystack[1]).$id[1]=>(string)$db->escape($haystack[1]),
+			(string)$db->escape($haystack[2]).$id[2]=>(string)$db->escape($haystack[2])
+		]];
+	foreach ($needle as $str) {
+		$strarray=explode(',',$str);
+		$query="";
+		$queryarray=[];
+		foreach ($strarray as $x) {
+			$y=schAnalyze($x);
+			if ($y[0]!=="") {
+				$query_memo='(SELECT DISTINCT ::'.(string)$db->escape($haystack[2]).$id[2].' FROM ::'.(string)$db->escape($haystack[0]).$id[0].' WHERE '.$y[0].')';
+				if ($query==="") {
+					$query=$query_memo.' AS D'.generator();
+				}else{
+					$query.=' JOIN '.$query_memo.' AS D'.generator().' using(::id'.$idg.') ';
+				}
+				$queryarray+=$y[1];
+			}
+		}	
+		if ($query!=="") {
+			if ($ret[0]!=="") {
+				$ret[0].=' ) UNION ( ';	
+			}
+			$ret[0].=$query;
+			$ret[1]+=$queryarray;
+		}
+	}	
+	if($ret[0]!==""){
+		$ret[0]='(SELECT DISTINCT ::id'.$idg.' FROM ('.$ret[0].'))';
+	}
+	return $ret;
+}
+
 $input=array_map(function($req){
 	if (is_array($req)) {
 		return array_map('kana',$req);
@@ -236,19 +329,27 @@ foreach ($SEARCHOPTIONS as $SearchOption) {
 			var_dump($query);
 			var_dump($queryvalue);
 			break;
-}
-case STR:{
-	$ret=caseStr($SearchOption[1],$input[$SearchOption[0]]);			
-	$query.=$ret[0];
-	$queryvalue+=$ret[1];
-	var_dump($query);
-	var_dump($queryvalue);
-	break;
-}
-case SEM:{
+		}
+		case STR:{
+			$ret=caseStr($SearchOption[1],$input[$SearchOption[0]]);			
+			$query.=$ret[0];
+			$queryvalue+=$ret[1];
+			var_dump($query);
+			var_dump($queryvalue);
+			break;
+		}
+		case SEM:{
 			$ret=caseSem($SearchOption[1],$input[$SearchOption[0]]);			
 			$query.=$ret[0];
 			$queryvalue+=$ret[1];
+			break;
+		}
+		case SCH:{
+			$ret=caseSch($SearchOption[1],$input[$SearchOption[0]]);			
+			$query.=$ret[0];
+			$queryvalue+=$ret[1];
+			var_dump($query);
+			var_dump($queryvalue);
 			break;
 		}
 
