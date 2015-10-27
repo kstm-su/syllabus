@@ -26,7 +26,7 @@ class DBGuest extends mysqli {
 	/* プレースホルダに値を挿入 */
 	public function sql($sql, ...$values) {
 		$i = 0;
-		return preg_replace_callback('/\\\\([\\\\?:])|(\{?)(?:(\?\??)|(::?)(\w+))(\}?)/',
+		$sql = preg_replace_callback('/\\\\([\\\\?:])|(\{?)(?:(\?\??)|(::?)(\w+))(\}?)/',
 			function($m) use ($values, &$i) {
 				if ($m[1]) {
 					return $m[1];
@@ -49,7 +49,7 @@ class DBGuest extends mysqli {
 				$list = array();
 				foreach ($value as $v) {
 					if (is_null($v)) {
-						$list[] = NULL;
+						$list[] = 'NULL';
 						continue;
 					}
 					if ($m[2] === '{' && isset($m[6])) {
@@ -60,11 +60,16 @@ class DBGuest extends mysqli {
 							break;
 						}
 					} else {
+						if (is_bool($v)) {
+							$v = (int)$v;
+						}
 						$list[] = $quote . $this->escape((string)$v) . $quote;
 					}
 				}
 				return implode(', ', $list);
 			}, $sql);
+		$this->last = $sql;
+		return $sql;
 	}
 
 	/* SQLを実行 */
@@ -122,10 +127,6 @@ class DBAdmin extends DBGuest {
 		$val = array();
 		foreach ($data as $c => $v) {
 			$col[] = $c;
-			if (is_null($v)) {
-				$val[] = 'NULL';
-				continue;
-			}
 			$val[] = $v;
 		}
 		if ($isHash) {
@@ -146,10 +147,6 @@ class DBAdmin extends DBGuest {
 		$val = array();
 		foreach ($data as $c => $v) {
 			$col[] = $c;
-			if (is_null($v)) {
-				$val[] = 'NULL';
-				continue;
-			}
 			$val[] = $v;
 		}
 		if ($isHash) {

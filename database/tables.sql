@@ -77,15 +77,16 @@ CREATE TABLE IF NOT EXISTS `summary` (
 	`ches` tinyint(1) NOT NULL COMMENT '県内大学履修科目',
 	PRIMARY KEY (`id`),
 	UNIQUE `uniq` (`year`, `code`),
-	INDEX `title` (`title`),
-	INDEX `title_english` (`title_english`)
+	FULLTEXT `title` (`title`) WITH PARSER `ngram`,
+	FULLTEXT `title_english` (`title_english`) WITH PARSER `ngram`
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COMMENT = '主にhtmldataを元に整理したテーブル';
 
 CREATE TABLE IF NOT EXISTS `staff` (
 	`staff_id` int(11) NOT NULL AUTO_INCREMENT COMMENT '教員ID',
 	`name` varchar(127) NOT NULL COMMENT '教員名',
 	PRIMARY KEY (`staff_id`),
-	UNIQUE `name` (`name`)
+	UNIQUE `name` (`name`),
+	FULLTEXT `word` (`name`) WITH PARSER `ngram`
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COMMENT = '教員一覧';
 
 CREATE TABLE IF NOT EXISTS `teacher` (
