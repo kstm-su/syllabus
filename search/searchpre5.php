@@ -258,7 +258,7 @@ function caseSem($haystack,$needle){
 	if ($ret[0]!=="") {
 		$ret[0]='SELECT ::'.(string)$db->escape($incase[2]).$id[5].' FROM ::'.(string)$db->escape($incase[0]).$id[3].' WHERE ::'.(string)$db->escape($incase[1]).$id[4].' IN (SELECT ::'.(string)$db->escape($haystack[2]).$id[2].' FROM ::'. (string)$db->escape($haystack[0]).$id[0].' WHERE ('.$ret[0].'))';
 	}
-	var_dump($needle);
+	//var_dump($needle);
 	return $ret;
 }
 
@@ -315,7 +315,7 @@ $idg=generator();
 $queryvaluearray=["",["id$idg"=>'id']];
 
 foreach ($SEARCHOPTIONS as $SearchOption) {
-	echo $SearchOption[0].PHP_EOL;
+	//echo $SearchOption[0].PHP_EOL;
 
 	if (isset($input[$SearchOption[0]])) {
 		$query="";	
@@ -326,16 +326,16 @@ foreach ($SEARCHOPTIONS as $SearchOption) {
 			$ret=caseNum($SearchOption[1][0],$input[$SearchOption[0]]);			
 			$query.=$ret[0];
 			$queryvalue+=$ret[1];
-			var_dump($query);
-			var_dump($queryvalue);
+			//var_dump($query);
+			//var_dump($queryvalue);
 			break;
 		}
 		case STR:{
 			$ret=caseStr($SearchOption[1],$input[$SearchOption[0]]);			
 			$query.=$ret[0];
 			$queryvalue+=$ret[1];
-			var_dump($query);
-			var_dump($queryvalue);
+			//var_dump($query);
+			//var_dump($queryvalue);
 			break;
 		}
 		case SEM:{
@@ -348,8 +348,8 @@ foreach ($SEARCHOPTIONS as $SearchOption) {
 			$ret=caseSch($SearchOption[1],$input[$SearchOption[0]]);			
 			$query.=$ret[0];
 			$queryvalue+=$ret[1];
-			var_dump($query);
-			var_dump($queryvalue);
+			//var_dump($query);
+			//var_dump($queryvalue);
 			break;
 		}
 
@@ -364,12 +364,22 @@ foreach ($SEARCHOPTIONS as $SearchOption) {
 			}
 			$queryvaluearray[1]+=$queryvalue;
 		}
-		echo "!".$query.PHP_EOL;
-		echo $db->sql($query,$queryvaluearray);
+		//echo "!".$query.PHP_EOL;
+		//echo $db->sql($query,$queryvaluearray);
 	}
 }
 if ($queryvaluearray[0]!=="") {
 	$queryvaluearray[0]="SELECT ::id$idg FROM ($queryvaluearray[0])";
 }
-var_dump($queryvaluearray);
-echo $db->sql($queryvaluearray[0],$queryvaluearray[1]);
+//var_dump($queryvaluearray);
+//echo $db->sql($queryvaluearray[0],$queryvaluearray[1]);
+if ($queryvaluearray[0]!=="") {
+	$id=[generator(),generator(),generator()];
+	$queryvaluearray[0]="SELECT ::json$id[0] FROM ::res$id[1] WHERE ::id$idg in(SELECT DISTINCT D$id[2].::id$idg FROM ($queryvaluearray[0])as D$id[2]);";
+	$queryvaluearray[1]+=[
+		"json$id[0]"=>$db->escape('json'),
+		"res$id[1]"=>$db->escape('json')
+	];
+	$result=$db->query($db->sql($queryvaluearray[0],$queryvaluearray[1]));
+	echo '{"syllabus":[' . implode(',', array_map('implode', $result->fetch_all())) . '],"page":'. json_encode(array('begin' => 0, 'end' => 100)) .'}';
+}
