@@ -7,7 +7,7 @@ function isHashArray($arr) {
 class DBGuest extends mysqli {
 
 	public function __construct() {
-		parent::__construct('localhost', GUEST_USER, GUEST_PASSWD);
+		parent::__construct('127.0.0.1', GUEST_USER, GUEST_PASSWD);
 		$this->set_charset('utf8');
 		$this->select_db(DB_NAME);
 	}
@@ -15,6 +15,14 @@ class DBGuest extends mysqli {
 	/* 文字列をエスケープして返す */
 	public function escape($str) {
 		return $this->real_escape_string($str);
+	}
+
+	public function begin() {
+		return $this->query('BEGIN');
+	}
+
+	public function commit($flags = NULL, $name = NULL) {
+		return $this->query('COMMIT');
 	}
 
 	/* 指定したテーブルからすべての行をSELECT */
@@ -69,6 +77,7 @@ class DBGuest extends mysqli {
 				return implode(', ', $list);
 			}, $sql);
 		$this->last = $sql;
+		//print("[DEBUG] $sql\n");
 		return $sql;
 	}
 
@@ -97,7 +106,7 @@ class DBGuest extends mysqli {
 		if ($q === FALSE) {
 			return FALSE;
 		}
-		$res = $q->fetch_all(MYSQL_ASSOC);
+		$res = $q->fetch_all(MYSQLI_ASSOC);
 		if (isset($res[0]) && count($res[0]) === 1) {
 			return array_column($res, array_keys($res[0])[0]);
 		}
@@ -109,14 +118,9 @@ class DBGuest extends mysqli {
 class DBAdmin extends DBGuest {
 
 	public function __construct() {
-		mysqli::__construct('localhost', ADMIN_USER, ADMIN_PASSWD);
+		mysqli::__construct('127.0.0.1', ADMIN_USER, ADMIN_PASSWD);
 		$this->set_charset('utf8');
 		$this->select_db(DB_NAME);
-	}
-
-	/* トランザクション開始 */
-	public function begin($flags = MYSQLI_TRANS_START_READ_WRITE) {
-		return $this->begin_transaction($flags);
 	}
 
 	/* 指定したテーブルにデータを挿入 */
