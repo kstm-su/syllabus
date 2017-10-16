@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 cd `dirname "$0"`
 
 read -sp 'Enter MySQL root password: ' PASSWORD

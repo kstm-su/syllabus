@@ -16,7 +16,7 @@ while ($row = $q->fetch_assoc()) {
 		$db->query('SELECT `staff`.`name` FROM `teacher`
 		INNER JOIN `staff` ON `staff`.`staff_id` = `teacher`.`staff_id`
 		WHERE `id` = ? ORDER BY `teacher`.`main` DESC',
-		$row['id'])->fetch_all(MYSQL_ASSOC));
+		$row['id'])->fetch_all(MYSQLI_ASSOC));
 	$semester = NULL;
 	if (is_null($row['semester_id']) === FALSE) {
 		$semester = $db->single('SELECT `description` FROM `semester`
@@ -33,13 +33,13 @@ while ($row = $q->fetch_assoc()) {
 		); },
 		$db->query(
 			'SELECT * FROM `schedule` WHERE `id` = ?', $row['id']
-		)->fetch_all(MYSQL_ASSOC));
+		)->fetch_all(MYSQLI_ASSOC));
 	$classroom = $db->query('SELECT `department`.`name` as `place`,
 		`department`.`department_code` as `place_code`, `room`.`name` as `name`
 		FROM `classroom`INNER JOIN `room` ON
 		`room`.`room_id` = `classroom`.`room_id` INNER JOIN `department`
 		ON `department`.`department_id` = `room`.`department_id`
-		WHERE `classroom`.`id` = ?', $row['id'])->fetch_all(MYSQL_ASSOC);
+		WHERE `classroom`.`id` = ?', $row['id'])->fetch_all(MYSQLI_ASSOC);
 	$db->replace('json', array('id' => $row['id'],
 		'json' => json_encode(array(
 			'id' => (int)$row['id'],
